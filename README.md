@@ -1,6 +1,7 @@
-# �ҵıʼ�
+# 我的笔记
 
-## Program
+## Programming Language
+
 * Python
 * PHP
 * Java
@@ -8,9 +9,8 @@
 * HTML
 * CSS
 
+# Tao
+
 ## Pene
 
-## Tao
 
-## tools
- 
