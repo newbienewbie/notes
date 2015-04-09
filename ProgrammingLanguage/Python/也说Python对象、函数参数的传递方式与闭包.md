@@ -8,6 +8,7 @@
 
 起这个小标题可能多少有故弄玄需之嫌，然而Levy(1984)黑客准则第一条就明确提出
 > Access to Computers - and anything which might teach you something about the way the world works – should be unlimited and total
+
 程序的运作和这个世界的运作方式是统一的。 
 
 ### 变，或者不变
