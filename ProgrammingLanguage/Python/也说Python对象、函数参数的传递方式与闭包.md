@@ -6,7 +6,9 @@
 
 ## 对象可变之禅
 
-起这个小标题可能多少有故弄玄需之嫌，然而Levy(1984)黑客准则第一条就明确提出”Access to Computers - and anything which might teach you something about the way the world works – should be unlimited and total”。程序的运作和这个世界的运作方式是统一的。 
+起这个小标题可能多少有故弄玄需之嫌，然而Levy(1984)黑客准则第一条就明确提出
+``Access to Computers - and anything which might teach you something about the way the world works – should be unlimited and total``
+程序的运作和这个世界的运作方式是统一的。 
 
 ### 变，或者不变
 
@@ -117,7 +119,7 @@ bInt is : 4 id of bInt is : 137396048
 
 同样的环境，同样的名字，只是对象已经不是以前的对象了——去年今日此门中，人面桃花相映红。
 
-这个过程用充满哲学意味的话可以表述为“现在的你已然不是昨天的你”。《金刚经》通篇都充斥这种思想。
+这个过程用充满哲学意味的话可以表述为``现在的你已然不是昨天的你``.《金刚经》通篇都充斥这种思想。
 
 ps：大约是受奶茶5月新出的专辑《亲爱的路人》影响吧，这几句话现在说起来多少有些感慨。多年前，写了一个偈子：佛即非佛，我亦非我，不见真相，不见真我。只言片语，权作掩耳。
 
@@ -125,34 +127,38 @@ ps：大约是受奶茶5月新出的专辑《亲爱的路人》影响吧，这�
 
 函数参数传递方式对于C/C++者来说，容不得半点模糊。Python里，这也是个重要的问题。不过经过本文第一部分Python里对象可变之禅的分析，函数参数传递方式非常容易理解。这里仅仅以一小段测试代码简单分析下。
 ```Python
-defChangeValue(aInt,aList):
-''' 参数传递测试函数'''
+def ChangeValue(aInt,bList):
+    #测试改变参数
     aInt+=1
-    aList.append("Someone remains in yr heart forever")
+    bList.append("Someone remains in yr heart forever")
 
-    aList=1
-    bList=["someone comes","someone goes"]
+aInt=1
+bList=["someone comes","someone goes"]
 
-    print("before calling")
-    print("\taList is : ",aList)
-    print("\tbList is : ",bList)
-ChangeValue(aList,bList)
+print("before calling")
+print("\taInt is : ",aInt)
+print("\tbList is : ",bList)
+
+ChangeValue(aInt,bList)
 print("after calling")
-print("\taList is : ",aList)
+print("\taInt is : ",aInt)
 print("\tbList is : ",bList)
 ```
 
 输出类似为：
 ```Python
 before calling
-aList is : 1
-bList is : ['someone comes', 'someone goes']
+	aInt is :  1
+	bList is :  ['someone comes', 'someone goes']
 after calling
-aList is : 1
-bList is : ['someone comes', 'someone goes', 'Someone remains in yr heart forever']
+	aInt is :  1
+	bList is :  ['someone comes', 'someone goes', 'Someone remains in yr heart forever']
 ```
+* 对于aInt,由于是不可变变量，在ChangeValue函数内部，会重新生成一个新的aInt；外围变量未收到影响
+* 对于bList，由于是可变变量，在ChangeVaule函数内部，改变以bList名字命名的对象
 
-分析过程类似于第一部分。对于immutable对象作为arg，传递给参数param后，由于本身不可改变，对para改变会生成一个新的mutable对象进行，可视作按值传递；对于一个mutable对象作为arg传递给param，由于本身可变，对para改变会影响原有的arg，可视作按引用传递。
+但是，其中奥妙仅此而已嘛？
+
 
 ## 函数对外围变量的影响
 
@@ -162,39 +168,45 @@ bList is : ['someone comes', 'someone goes', 'Someone remains in yr heart foreve
 
 在函数内部，如果一个对象先以先左值出现，且没有用“.”指定，则系统会试图优先把它解释为在函数内部的局部变量，以相应的语句对其初始化。显然，正常情况下，局部变量不会影响外围变量。
 
-但千万不要以为非左值出现的对象就是右值，就不能改变原对象。因为左值、右值都是针对赋值而言的。要修改一个对象，除了赋值，还可以利用某些非赋值表达式。有两个典型反例就是，一个对象或许可以通过一元操作符修改自身，一个对象可以通过调用相关方法修改自身。（参见本文1.2.1的第二部分）
-对于一个局部变量，即使有与其同名的外围变量，这二者也毫无关系。
+但千万不要以为非左值出现的对象就是右值，就不能改变原对象。因为左值、右值都是针对赋值而言的。要修改一个对象，除了赋值，还可以利用某些非赋值表达式。有两个典型反例就是，
++ 一个对象或许可以通过一元操作符修改自身，
++ 一个对象可以通过调用相关方法修改自身。（参见本文1.2.1的第二部分）
 
-不要因为存在了外围同名变量的初值而忽视局部变量的初始化。
+对于一个局部变量，即使有与其同名的外围变量，这二者也毫无关系。不要因为存在了外围同名变量的初值而忽视局部变量的初始化。
 
-总而言之，```笼统的说子函数的变量变化不影响外围变量是不负责任的。```
+总而言之，``笼统的说子函数的变量变化不影响外围变量是不负责任的。``
 
-假定某个子函数之外，有一个同名的外围变量。
-如果它是immutable,不管它是不是以左值出现，都能肯定它和外围变量指代的并不是同一个对象；
-而如果这是个mutable变量，则这二者可能是或者可能不是是同一对象——这取决于这个子函数之中，是否有这样一种情况：这个对象以某种方式，修改一个新对象到原来对象名上。
-测试代码与分析见下：
+假定某个子函数的某一个变量，在函数之外，还存在一个同名的外围变量:
 
-```
++ 如果它是immutable,不管它是不是以左值出现，都能肯定它和外围变量指代的并不是同一个对象；
++ 而如果这是个mutable变量，则这二者可能是或者可能不是是同一对象——这取决于这个子函数之中，是否有这样一种情况：这个对象以某种方式，修改一个新对象到原来对象名上。
+网上一些技术贴的作者认为：  
+``如果子函数里那些和外围变量同名的变量的发生变化，结果并不会改变外围变量``
+其实这句话是有失偏颇的。测试代码与分析见下：
+
+```Python
+
 defParentFoo():
-''''测试子函数对父函数的局部变量的影响
-父函数有两个对象， aInt：int类对象；
-aList：list类对象。'''
+''''测试子函数对父函数的局部变量的影响父函数有两个对象， aInt：int类对象；aList：list类对象。'''
     aInt=1234567
     aList=["a","b","c","d"]
     print("the ParentFoo Before Calling SubFoo : ")
     print("\taInt is ",aInt,",id is ",id(aInt))
     print("\taList is ",aList,"，id is ",id(aList))
+
     defSubFoo():
 '    ''子函数，用于测试子函数里局部变量修改对外围变量的影响 '''
         print("Calling SubFoo : ")#提示子函数已经开始调用
+
         #Step1：测试对父函数里的aInt的影响
         print("\tStep1:测试子函数对aInt的影响")
         #下面建立一个局部变量aInt，同时初始化
-        #如果没有这一步，则后面aInt不能以左值出现
+        #如果没有这一步，则后面aInt不能以左值出现!!
         aInt=1234567#这个局部变量和外围变量同名并不会造成任何影响
         print("\t\taInt is ",aInt,",id is ",id(aInt))
         aInt+=1
         print("\t\taInt is ",aInt,",id is ",id(aInt))
+
         #Step2：测试对父函数里的aList的影响
         print("\tStep2:测试子函数对aInt的影响")
         #很多人——很多中文网站贴出来的技术贴的作者认为：
@@ -216,7 +228,7 @@ aList：list类对象。'''
     print("\taList is ",aList,"，id is ",id(aList))
 
 ParentFoo() #调用父函数
-```Python
+```
 
 
 输出类似于：
