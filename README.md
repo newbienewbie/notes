@@ -1,5 +1,7 @@
 # 我的笔记
 
+挨踢信笔,不亦说乎？
+
 ## Programming Language
 
 * Python
