@@ -4,12 +4,33 @@ PHPCMS整体设计思路，还是遵循基本的MVC模式。
 
 ## 路由功能与控制器的分离
 
-PHPCMS访问index.php文件时，会调用
+PHPCMS访问index.php文件时，会加载phpcms/base.php文件，
+该base.php文件定义里一堆常量、和pc_base类。此pc_base类提供一系列静态方法，这些加载函数的功能大多都是用于加载与index.php同级目录下的phpcms/下的各个相关文件(load_config除外)，如：
 ```PHP
-pc_base::creat_app();
-```
-方法，而此方法只是简单加载系统类application。
+//加载系统类 位于libs/classes/下
+pc_base::load_sys_class("类名","模块名",$initialize);
+//加载系统函数 位于libs/functions/下 
+pc_base::load_sys_func('函数名');
 
+//加载模块下的类 位于modules/模块/classes/下
+pc_base::load_app_class("类名","模块名",$initialize);
+//加载模块下的函数 位于modules/模块/functions/下 
+pc_base::load_app_func();
+
+//加载数据模型 位于model/下 
+$db=pc_base::load_model("文件名_无后缀");
+
+//加载配置 位于与index.php同级目录下的caches/下
+$v=pc_base::load_config($filename,$key);
+```
+在index.php加载完base.php后，又执行了pc_base::creat_app()函数。此函数定义为：
+```PHP
+public static function creat_app() {
+    return self::load_sys_class('application');
+}
+
+```
+此方法只是简单加载系统类application。
 从功能上说，application类起到了一个路由功能，其构造函数__construct()会调用init()方法，根据传入的相关URL参数去调用对应的module下相关controller的特定action方法。
 
 module、controller、action对应参数m、c、和a。如果不提供action参数，则会默认调用控制器的init()方法。
@@ -20,7 +41,7 @@ module、controller、action对应参数m、c、和a。如果不提供action参�
 
 在控制器中利用语句
 ```PHP
-$md=pc_base::load_model('your_model');``
+$md=pc_base::load_model('your_model');
 ```
 可以加载相关模型类，系统的模型类在libs/classes/model.class.php中定义，各模块下模型定义在model/文件下，并继承自系统的model类。
 
