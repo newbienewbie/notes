@@ -1,26 +1,26 @@
-# PHPCMS基础架构分析（1）
+# PHPCMS分析1-基础架构分析
 
 PHPCMS整体设计思路，还是遵循基本的MVC模式。
 
 ## 路由功能与控制器的分离
 
 PHPCMS访问index.php文件时，会加载phpcms/base.php文件，
-该base.php文件定义里一堆常量、和pc_base类。此pc_base类提供一系列静态方法，这些加载函数的功能大多都是用于加载与index.php同级目录下的phpcms/下的各个相关文件(load_config除外)，如：
+该base.php文件定义了一堆常量、和一个pc_base类。此pc_base类提供一系列静态方法，这些静态方法的功能大多都是用于加载与index.php同级目录下的phpcms/下的各个相关文件(load_config除外)，如：
 ```PHP
-//加载系统类 位于libs/classes/下
+//加载系统类 位于phpcms/libs/classes/下
 pc_base::load_sys_class("类名","模块名",$initialize);
-//加载系统函数 位于libs/functions/下 
+//加载系统函数 位于phpcms/libs/functions/下 
 pc_base::load_sys_func('函数名');
 
-//加载模块下的类 位于modules/模块/classes/下
+//加载模块下的类 位于phpcms/modules/模块/classes/下
 pc_base::load_app_class("类名","模块名",$initialize);
-//加载模块下的函数 位于modules/模块/functions/下 
+//加载模块下的函数 位于phpcms/modules/模块/functions/下 
 pc_base::load_app_func();
 
-//加载数据模型 位于model/下 
+//加载数据模型 位于phpcms/model/下 
 $db=pc_base::load_model("文件名_无后缀");
 
-//加载配置 位于与index.php同级目录下的caches/下
+//加载配置 位于caches/下
 $v=pc_base::load_config($filename,$key);
 ```
 在index.php加载完base.php后，又执行了pc_base::creat_app()函数。此函数定义为：
