@@ -53,7 +53,12 @@ include $your_template_file_name;
 ```
 但是PHPCMS根据前后台的不同，在自身文件结构目录上自定义两个求得路径的函数
 
-* template($modulee,$file) 获取指定module前台模板
-* admin_tpl($file) 获取当前module的后台模板
+* template($module,$file) 获取指定module前台模板
+* admin_tpl($file,$module) 获取指定module下的后台模板（默认是获取当前module的后台模板）
 
+如后台模板经常会在顶部调用：
+```PHP
+include $this->admin_tpl('header', 'admin');
+```
+以此来加载admin/templates/header.tpl.php文件
 
