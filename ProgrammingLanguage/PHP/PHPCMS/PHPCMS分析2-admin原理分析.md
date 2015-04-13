@@ -191,7 +191,9 @@ final private function check_ip(){
  * @param string $file 文件名
  * @param string $m 模型名
  */
-final public static function admin_tpl($file, $m = '') {}
+final public static function admin_tpl($file, $m = ''){
+    ...
+}
 ```
 
 #### admin_menu()
@@ -247,7 +249,86 @@ final public static function admin_menu($parentid, $with_self = 0) {
 ```
 
 ### 当前位置
+利用递归，获取某一个menu的所有父菜单层级，作为HTML片段返回
+```PHP
+/**
+  * @param $id 菜单id
+  */
+final public static function current_pos($id) {
+    $menudb = pc_base::load_model('menu_model');
+    $r =$menudb->get_one(array('id'=>$id),'id,name,parentid');
+    $str = '';
+    if($r['parentid']){
+        $str = self::current_pos($r['parentid']);
+    }
+    return $str.L($r['name']).' > ';
+}
+```
+
 ### 子菜单
+
+主要是用来生成相关菜单的所有子菜单导航（一般显示在iframe框架内容页的上部）
+
+```PHP
+/**
+ * 获取菜单 头部菜单导航
+ *
+ * @param $parentid 菜单id
+ */
+final public static function submenu($parentid = '', $big_menu = false) {
+
+    if(empty($parentid)){
+        $menudb = pc_base::load_model('menu_model');
+        $r = $menudb->get_one(array('m'=>ROUTE_M,'c'=>ROUTE_C,'a'=>ROUTE_A));
+        $parentid = $_GET['menuid'] = $r['id'];
+    }
+    $array = self::admin_menu($parentid,1);
+    $numbers = count($array);
+    if($numbers==1 && !$big_menu) 
+        return '';
+    $string = '';
+    $pc_hash = $_SESSION['pc_hash'];
+
+    foreach($array as $_value){
+        if (!isset($_GET['s'])) {
+            $classname = 
+                ROUTE_M == $_value['m'] && 
+                ROUTE_C == $_value['c'] &&
+                ROUTE_A == $_value['a'] ? 
+                'class="on"' : '';
+        } else {
+            $_s = !empty($_value['data']) ? 
+                str_replace('=', '', strstr($_value['data'], '=')) : '';
+            $classname = ROUTE_M == $_value['m'] && 
+                ROUTE_C == $_value['c'] && 
+                ROUTE_A == $_value['a'] && 
+                $_GET['s'] == $_s ?'class="on"' : '';
+        }
+
+        if($_value['parentid'] == 0 || $_value['m']=='') 
+            continue;
+
+        if($classname) {
+            $string .= "<a href='javascript:;' $classname><em>".  
+                L($_value['name']).
+                "</em></a><span>|</span>";
+        } else {
+            $string .= "<a href='?m=".$_value['m'].  
+                "&c=".$_value['c'].
+                "&a=".$_value['a'].
+                "&menuid=$parentid&pc_hash=$pc_hash".
+                '&'.$_value['data'].
+                "' $classname><em>".
+                L($_value['name']).
+                "</em></a><span>|</span>";
+        }
+    }
+    $string = substr($string,0,-14);
+    return $string;
+}
+
+
+```
 
 
 ## index.php控制器源码分析
