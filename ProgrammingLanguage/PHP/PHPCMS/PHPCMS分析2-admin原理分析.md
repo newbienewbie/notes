@@ -333,7 +333,123 @@ final public static function submenu($parentid = '', $big_menu = false) {
 
 ## index.php控制器源码分析
 控制器类index继承自admin类
+
 ### 左侧菜单实现原理
 
+关于左侧菜单菜单生成，是在index控制器中，action名为public_menu_left()，核心代码为：
+
+```PHP
+include  $this->admin_tpl('left');
+```
+
+对应的left.tpl.php关键代码及其分析如下：
+
+```PHP
+foreach($datas as $_value){
+    //输出菜单标题
+    echo '<h3 class="f14"><span class="switchs cu on" title="'.
+        L('expand_or_contract').
+        '"></span>'.
+        L($_value['name']).
+        '</h3>';
+    //输出子菜单列表
+    echo '<ul>';    
+    $sub_array = admin::admin_menu($_value['id']);
+    foreach($sub_array as $_key=>$_m){
+        //附加data参数
+        $data = $_m['data'] ? '&'.$_m['data'] : '';
+        if($menuid == 5) { //左侧菜单不显示选中状态
+            $classname = 'class="sub_menu"';
+        } else {
+            $classname = 'class="sub_menu"';
+        }
+        //输出每个子菜单，并给每个子菜单添加JavaScript伪链接，格式类似于：
+        //javascript:_MP(1002,'?m=content&c=create_html&a=category.$data');
+        //$data是附加参数
+        echo '<li id="_MP'.$_m['id'].'" '.$classname.'><a href="javascript:_MP('.$_m['id'].',\'?m='.$_m['m'].'&c='.$_m['c'].'&a='.$_m['a'].$data.'\');" hidefocus="true" style="outline:none;">'.L($_m['name']).'</a></li>';
+    }
+    echo '</ul>';
+}
+?>
+
+<!--使菜单标题点击时有动画切换效果-->
+<script type="text/javascript">
+$(".switchs").each(function(i){
+    var ul = $(this).parent().next();
+    $(this).click(unction(){
+        if(ul.is(':visible')){
+            ul.hide();
+            $(this).removeClass('on');
+        }else{
+            ul.show();
+            $(this).addClass('on');
+        }
+    })
+});
+</script>
+```
+
+这样，左部菜单就能自动生成了，至于这些菜单的动作执行，是通过JavaScript伪链接完成的，其核心函数为_MP(menuid,targetUrl)：
+```JavaScript
+function _MP(menuid,targetUrl) {
+
+    $("#menuid").val(menuid);
+    $("#paneladd").html('<a class="panel-add" href="javascript:add_panel();"><em>添加</em></a>');
+
+    //更新iframe的内容
+    $("#rightMain").attr('src', targetUrl+'&menuid='+menuid+'&pc_hash='+pc_hash);
+
+    //更新表示当前位置的字符串
+    $('.sub_menu').removeClass("on fb blue");
+    $('#_MP'+menuid).addClass("on fb blue");
+    $.get(
+        "?m=admin&c=index&a=public_current_pos&menuid="+menuid,
+        function(data){
+            $("#current_pos").html(data+'<span id="current_pos_attr"></span>');
+        }
+    );
+    $("#current_pos").data('clicknum', 1);
+
+    //显示来自v9官方站点的帮助信息，默认会同源策略屏蔽掉
+     show_help(targetUrl);
+}
+```
+但是这只是更新了iframe的内容，左侧的菜单是怎么更新的呢：
+
+```JavaScript
+function _Site_M(project) {
+    var id = '';
+    $('#top_menu li').each(function (){
+        var S_class = $(this).attr('class');
+        if ($(this).attr('id')){
+            $(this).hide();
+        }
+        if (S_class=='on top_menu' || S_class=='top_menu on'){
+            id = $(this).attr('id');
+        }
+    });
+
+    $('#'+id).show();
+    id = id.substring(2, id.length);
+    if (!project){
+        project = 0; 
+    }
+    $.ajaxSettings.async = false; 
+    $.getJSON(
+        'index.php', 
+        {m:'admin', c:'index', a:'public_set_model', 'site_model':project, 'time':Math.random()}, 
+        function (data){
+            $.each(data, function(i, n){
+                $('#_M'+n).show();
+            })
+        }
+    )
+    //更新左侧菜单内容块
+    $("#leftMain").load(
+        "?m=admin&c=index&a=public_menu_left&menuid="+id
+        +'&time='+Math.random()
+    );
+}
+```
 
 ## iframe嵌入文件的header源码分析
