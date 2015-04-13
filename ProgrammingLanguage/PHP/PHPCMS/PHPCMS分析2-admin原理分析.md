@@ -462,6 +462,9 @@ include $this->admin_tpl('header', 'admin');
 
 1. 加载各类css、javascript文件，
 2. 一段用于为各个锚定和表单添加pc_hash的javascript代码：
+3. 加载submenu的PHP脚本：
+
+为所有锚定和表单添加pc_hash源码及其分析为：
 ```PHP
 <script type="text/javascript">
 
@@ -501,9 +504,7 @@ var pc_hash = '<?php echo $_SESSION['pc_hash'];?>';
 </script>
 ```
 
-
-3. 加载submenu的PHP脚本：
-
+加载当前菜单的子菜单导航HTML片段的源码及其分析为：
 ```PHP
 <?php if(!isset($show_header)) { ?>
     <div class="subnav">
