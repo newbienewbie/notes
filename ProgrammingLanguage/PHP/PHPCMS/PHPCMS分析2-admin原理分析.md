@@ -12,7 +12,7 @@ PHPCMS后台管理页面总体上分为
 * 右侧上部当前位置
 * 右侧下部内嵌iframe
 
-四大区域，如![phpcms_admin_layout](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/PHP/PHPCMS/img/PHPCMS_admin_layout.png)
+四大区域，如![phpcms_admin_layout](http://raw.github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/PHP/PHPCMS/img/PHPCMS_admin_layout.png)
 
 
 ### 后台管理页面原理
