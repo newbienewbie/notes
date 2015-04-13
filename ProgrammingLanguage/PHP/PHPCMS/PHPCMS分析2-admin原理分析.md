@@ -247,6 +247,7 @@ final public static function admin_menu($parentid, $with_self = 0) {
     return $array;
 }
 ```
+通过以上分析可以看出，PHPCMS的后台管理界面中，菜单是存储在menu数据表中的。当我们二次开发需要新增菜单时候，只需要在menu表中插入相应menu的id、name、parentid、m、c、a、data等信息即可。当然为了让除了超级管理员之外的角色可以访问该menu，还需要在admin_role_priv表中配置权限。
 
 ### 当前位置
 利用递归，获取某一个menu的所有父菜单层级，作为HTML片段返回
