@@ -24,11 +24,12 @@ PHPCMS后台管理页面总体上分为
     * iframe id=rightMain   (利用javascript动态改变iframe的src属性)
 
 即每当访问index.php?m=admin的时候，会载入一个通用的index管理外壳（含顶部菜单、左部菜单、当前位置及一个iframe框架）。当用户点击管理外壳的顶部菜单或者左侧菜单时候，都会改变iframe的src属性，从而载入具体的内容页面。
-由于使用了iframe元素，这些具体的iframe内容页面是独立于后台管理界面的。所以应该通过
-* 服务端动态把pc_hash写入iframe内容页面
-* 利用客户端动态获取pc_hash
 
-两种方法之一，避免pc_hash校验失败。
+对于后台管理功能，PHPCMS的设计者认为，用户的操作都应该通过index?m=admin提供的外壳进行,而不同像是前台页面那样通过地址栏里输入
+```HTML
+index.php?m=module&c=contorller&a=action&...。
+```
+即可访问，所以PHPCMS设计者人为设定，``对于后台管理页面的请求都要求校验pc_hash``。
 
 对于具体的内容页面，头部往往还有对应于左侧相关菜单的子菜单，这是利用admin::submenu()方法获取的
 为了代码重用，PHPCMS实现了一个admin管理类。
