@@ -47,6 +47,28 @@ admin类提供的方法大致分为
 * 其他功能方法，如日志方法etc.
 
 ### 构造器
+主要是完成一系列诸如是否为管理员、是否有权限等检查操作：
+```PHP
+public function __construct() {
+
+    self::check_admin();    //检查用户是否已经登录
+    self::check_priv();    //检查该用户是否有该URL的权限（根据admin_role_priv_model表）
+    pc_base::load_app_func('global','admin');
+    if (!module_exists(ROUTE_M)) 
+        showmessage(L('module_not_exists'));
+    self::manage_log();
+    self::check_ip();    //检查是否为被禁止的IP
+    self::lock_screen(); 
+    self::check_hash();    //检查pc_hash是否为会话中的pc_hash
+    if(pc_base::load_config('system','admin_url') && 
+        $_SERVER["HTTP_HOST"]!= pc_base::load_config('system','admin_url')
+        )
+    {
+        Header("http/1.1 403 Forbidden");
+        exit('No permission resources.');
+    }
+}
+```
 
 ### 检查函数
 ### 管理模板的位置与管理菜单的数组
