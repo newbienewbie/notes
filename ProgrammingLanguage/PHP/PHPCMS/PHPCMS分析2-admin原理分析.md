@@ -27,9 +27,9 @@ PHPCMS后台管理页面总体上分为
 
 对于后台管理功能，PHPCMS的设计者认为，用户的操作都应该通过index?m=admin提供的外壳进行,而不同像是前台页面那样通过地址栏里输入
 ```HTML
-index.php?m=module&c=contorller&a=action&...。
+index.php?m=module&c=contorller&a=action&...
 ```
-即可访问，所以PHPCMS设计者人为设定，``对于后台管理页面的请求都要求校验pc_hash``。
+即可访问，所以PHPCMS设计者人为设定，``对于后台管理页面的请求都要求校验pc_hash``。通过index.php?m=admin提供的管理界面中的menu菜单访问的，会因带有pc_hash通过校验；否则，则会被拒之门外(提示[hash]数据验证失败)。
 
 对于具体的内容页面，头部往往还有对应于左侧相关菜单的子菜单，这是利用admin::submenu()方法获取的
 为了代码重用，PHPCMS实现了一个admin管理类。
