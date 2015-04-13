@@ -453,3 +453,72 @@ function _Site_M(project) {
 ```
 
 ## iframe嵌入文件的header源码分析
+
+一个嵌入的模板，大多会在顶部调用代码:
+```PHPCMS
+include $this->admin_tpl('header', 'admin');
+```
+而这个admin/templates/header.tpl.php模板文件，分为三大部分：
+
+1. 加载各类css、javascript文件，
+2. 一段用于为各个锚定和表单添加pc_hash的javascript代码：
+```PHP
+<script type="text/javascript">
+
+window.focus();
+var pc_hash = '<?php echo $_SESSION['pc_hash'];?>';
+
+<?php if(!isset($show_pc_hash)) { ?>
+
+    window.onload = function(){
+
+        //为各<a>元素的href属性中添加pc_hash
+        var html_a = document.getElementsByTagName('a');
+        var num = html_a.length;
+        for(var i=0;i<num;i++) {
+            var href = html_a[i].href;
+            if(href && href.indexOf('javascript:') == -1) {
+            if(href.indexOf('?') != -1) {
+            html_a[i].href = href+'&pc_hash='+pc_hash;
+            } else {
+            html_a[i].href = href+'?pc_hash='+pc_hash;
+            }
+            }
+        }
+
+        //为各form元素添加一个隐藏的pc_hash字段
+        var html_form = document.forms;
+        var num = html_form.length;
+        for(var i=0;i<num;i++) {
+            var newNode = document.createElement("input");
+            newNode.name = 'pc_hash';
+            newNode.type = 'hidden';
+            newNode.value = pc_hash;
+            html_form[i].appendChild(newNode);
+        }
+    }
+<?php } ?>
+</script>
+```
+
+
+3. 加载submenu的PHP脚本：
+
+```PHP
+<?php if(!isset($show_header)) { ?>
+    <div class="subnav">
+    <div class="content-menu ib-a blue line-x">
+    <?php 
+        if(isset($big_menu)) { 
+            echo '<a class="add fb" href="'.$big_menu[0].'">'.
+            '<em>'.$big_menu[1].'</em>'.
+            '</a>　';
+        } else {
+            $big_menu = '';
+        }
+    ?> 
+    <?php echo admin::submenu($_GET['menuid'],$big_menu); ?> 
+    </div>
+    </div>
+<?php } ?>
+```
