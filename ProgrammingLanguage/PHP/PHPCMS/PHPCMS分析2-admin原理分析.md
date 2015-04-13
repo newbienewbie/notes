@@ -47,7 +47,7 @@ admin类提供的方法大致分为
 * 其他功能方法，如日志方法etc.
 
 ### 构造器
-主要是完成一系列诸如是否为管理员、是否有权限等检查操作：
+主要是完成一系列诸如是否为管理员、是否有权限等检查操作,源码及分析如下：
 ```PHP
 public function __construct() {
 
@@ -72,7 +72,7 @@ public function __construct() {
 
 ### 检查函数
 
-检查函数主要包括check_admin、check_priv、check_ip等
+检查函数主要包括check_admin、check_priv、check_hash、check_ip等，源码及分析见下
 
 ```PHP
 
@@ -100,7 +100,7 @@ final public function check_admin() {
 }
 
 
-//检查该角色是否有相关m、c、a的操作权限
+//检查该角色是否有目前正在访问的m、c、a的操作权限
 final public function check_priv() {
 
     if(ROUTE_M =='admin' && ROUTE_C =='index' && in_array(ROUTE_A, array('login', 'init', 'public_card')))
@@ -179,6 +179,73 @@ final private function check_ip(){
 
 
 ### 管理模板的位置与管理菜单的数组
+
+* admin_tpl()    返回后台管理模板的位置
+* admin_menu()   返回某个菜单的子菜单数组
+
+#### admin_tpl()
+这个函数非常简单，用于加载相关模块的后台管理页面模板，默认是当前模块
+```PHP
+/**
+ * 加载后台模板
+ * @param string $file 文件名
+ * @param string $m 模型名
+ */
+final public static function admin_tpl($file, $m = '') {}
+```
+
+#### admin_menu()
+
+根据当前用户角色的权限，在数据库中按父ID查找出菜单子项的信息，作为数组返回。实现的过程主要是先获取相关父菜单的所有子菜单，然后再筛选出当前角色有权限的菜单。源码分析如下：
+
+```PHP
+ /**
+  * @param integer $parentid   父菜单ID  
+  * @param integer $with_self  是否包括他自己
+  */
+final public static function admin_menu($parentid, $with_self = 0) {
+    ...
+    //获取其全部的子菜单
+    $result =$menudb->select($where,'*',1000,'listorder ASC');
+    if($with_self) {
+        $result2[] = $menudb->get_one(array('id'=>$parentid));
+        $result = array_merge($result2,$result);
+    }
+
+
+    //如果是超级管理员，全部返回
+    if($_SESSION['roleid'] == 1) 
+        return $result;
+
+    //找出有权限的部分（根据admin_role_priv_model表）
+    $array = array();
+    $privdb = pc_base::load_model('admin_role_priv_model');
+    $siteid = param::get_cookie('siteid');
+    foreach($result as $v) {
+        $action = $v['a'];
+
+        //对于公有方法，放行通过
+        if(preg_match('/^public_/',$action)) {
+            $array[] = $v;
+
+        } else {
+
+            //对于ajax开头的方法，只截取后半部分方法名
+            if(preg_match('/^ajax_([a-z]+)_/',$action,$_match)) 
+                $action = $_match[1];
+
+            //尝试获取当前角色$roleid是否有对应的m、c、a的操作权限记录
+            $r = $privdb->get_one(array(
+                'm'=>$v['m'],'c'=>$v['c'],'a'=>$action,'roleid'=>$_SESSION['roleid'],'siteid'=>$siteid
+            ));
+            if($r)
+                $array[] = $v;
+        }
+    }
+    return $array;
+}
+```
+
 ### 当前位置
 ### 子菜单
 
