@@ -71,6 +71,113 @@ public function __construct() {
 ```
 
 ### 检查函数
+
+检查函数主要包括check_admin、check_priv、check_ip等
+
+```PHP
+
+
+//检查是否是管理员
+final public function check_admin() {
+
+
+    if(ROUTE_M =='admin' && 
+        ROUTE_C =='index' && 
+        in_array(ROUTE_A, array('login', 'public_card'))
+    ){
+        return true;
+    } else { 
+        //检查用户是登录为管理员
+        $userid = param::get_cookie('userid');
+        if(!isset($_SESSION['userid'])  ||
+            !isset($_SESSION['roleid']) || 
+            !$_SESSION['userid'] || 
+            !$_SESSION['roleid'] || 
+            $userid != $_SESSION['userid']
+        ) 
+            showmessage(L('admin_login'),'?m=admin&c=index&a=login');
+    }
+}
+
+
+//检查该角色是否有相关m、c、a的操作权限
+final public function check_priv() {
+
+    if(ROUTE_M =='admin' && ROUTE_C =='index' && in_array(ROUTE_A, array('login', 'init', 'public_card')))
+        return true;
+
+    //如果是超级管理员，pass
+    if($_SESSION['roleid'] == 1) 
+        return true;
+
+    
+    $siteid = param::get_cookie('siteid');
+    $action = ROUTE_A;
+    $privdb = pc_base::load_model('admin_role_priv_model');
+
+    //如果是以public_开头的方法，pass
+    if(preg_match('/^public_/',ROUTE_A)) 
+        return true;
+
+    //如果是以ajax_开头的方法，则只截取后半部分作为查询条件
+    if(preg_match('/^ajax_([a-z]+)_/',ROUTE_A,$_match)) {
+        $action = $_match[1];
+    }
+
+    //尝试获取有无m  c a roleid siteid都复合的权限记录
+    $r =$privdb->get_one(array(
+        'm'=>ROUTE_M,
+        'c'=>ROUTE_C,
+        'a'=>$action,
+        'roleid'=>$_SESSION['roleid'],
+        'siteid'=>$siteid
+    ));
+    if(!$r) 
+        showmessage('您没有权限操作该项','blank');
+}
+
+
+//检查hash值，验证用户数据安全性
+final private function check_hash() {
+
+    //如果是公有方法、管理首页、登陆界面等不需要hash认证的，予以放行
+    if(preg_match('/^public_/', ROUTE_A) || 
+        ROUTE_M =='admin' && ROUTE_C =='index' || 
+        in_array(ROUTE_A, array('login'))
+    ){
+        return true;
+    }
+
+
+    //不管是GET还是POST来的pc_hash,如果能和服务端pc_hash对应的上，则pass
+    if(isset($_GET['pc_hash']) && 
+        $_SESSION['pc_hash'] != '' && 
+        ($_SESSION['pc_hash'] == $_GET['pc_hash'])
+    ){
+        return true;
+    } elseif(
+        isset($_POST['pc_hash']) && 
+        $_SESSION['pc_hash'] != '' && 
+        ($_SESSION['pc_hash'] == $_POST['pc_hash'])
+    ){
+         return true;
+    } else {
+         showmessage(L('hash_check_false'),HTTP_REFERER);
+    }
+}
+
+
+//ip黑名单校验
+final private function check_ip(){
+    $this->ipbanned = pc_base::load_model('ipbanned_model');
+    $this->ipbanned->check_ip();
+}
+
+
+```
+
+
+
 ### 管理模板的位置与管理菜单的数组
 ### 当前位置
 ### 子菜单
