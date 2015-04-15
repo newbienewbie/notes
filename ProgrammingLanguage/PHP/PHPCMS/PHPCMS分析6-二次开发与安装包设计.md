@@ -51,6 +51,15 @@ values
 
 ![admin_dev_demo](https://github.com/newbienewbie/notes/raw/master/ProgrammingLanguage/PHP/PHPCMS/img/admin_dev_demo.png)
 
+当然，有时候ajax操作的时候需要获取pc_hash,可以有两种策略：
+
+1. 在服务端把pc_hash echo到iframe内
+2. 直接在客户端利用JavaScript获取pc_hash后操作：
+
+```JavaScript
+var pc_hash=parent.window.pc_hash;
+```
+
 
 # PHPCMS二次开发安装包设计
 
