@@ -51,7 +51,7 @@ values
 
 ![admin_dev_demo](https://github.com/newbienewbie/notes/raw/master/ProgrammingLanguage/PHP/PHPCMS/img/admin_dev_demo.png)
 
-当然，有时候ajax操作的时候需要获取pc_hash,可以有两种策略：
+尽管header.tpl.php里的JavaScript脚本会自动为<a>的href属性和<form>元素的action属性添加pc_hash，但是，仍有时候我们需要手动获取pc_hash（比如需要利用Ajax加载数据）,这时候可以考虑两种策略：
 
 1. 在服务端把pc_hash echo到iframe内
 2. 直接在客户端利用JavaScript获取pc_hash后操作：
