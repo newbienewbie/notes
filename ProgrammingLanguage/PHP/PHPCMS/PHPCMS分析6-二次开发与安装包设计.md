@@ -56,28 +56,28 @@ values
 
 开发好了新的模块，为了方便别人更好的使用，需要提供安装包。所谓安装包，其实只是一些列文件罗列，PHPCMS会自动复制这些文件到相关文件夹下。
 
-* xx/
-** modules/
+* xx/ 
+** modules/ 
 *** classes/    #模块类库，通过load_app_class($class,$module,$initialize)加载
-*** functions/    #模块函数库，通过load_app_func($func,$module)加载
-*** templates/   #后台模板库，通过
+*** functions/    #模块函数库，通过load_app_func($func,$module)加载 
+*** templates/   #后台模板库，通过 
 **** xx_yy.tpl.php    
 **** xx_zz.tpl.php
-*** index.php    #前台控制器
-*** xx.php    #后台控制器
-*** install/  #安装包
+*** index.php    #前台控制器 
+*** xx.php    #后台控制器 
+*** install/  #安装包 
 **** languages/  #语言包，会被复制到系统的语言包中
 ***** zh-cn/
-**** templates/    #前台模板，会被复制到系统的前台模板包中
-***** index.html
-***** list.html
-**** config.inc.php    #基本信息
-**** extention.inc.php    #指明了后台管理菜单
-**** model.php    #指明了该模块都使用了哪些model
+**** templates/    #前台模板，会被复制到系统的前台模板包中 
+***** index.html 
+***** list.html 
+**** config.inc.php    #基本信息 
+**** extention.inc.php    #指明了后台管理菜单 
+**** model.php    #指明了该模块都使用了哪些model 
 **** xx.sql    #创建数据表SQL
-**** module.sql     #向module表中新增加一行关于该模块的信息
-**** uninstall/
-** module/
+**** module.sql     #向module表中新增加一行关于该模块的信息 
+**** uninstall/ 
+** module/ 
 *** xx_model.class.php
 
 
