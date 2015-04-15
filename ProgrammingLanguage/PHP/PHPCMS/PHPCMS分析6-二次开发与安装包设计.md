@@ -42,7 +42,7 @@ values
 
 刷新缓存后访问后台即可：
 
-![admin_dev_demo](https://github.com/newbienewbie/notes/raw/master/programmingLanguage/PHP/PHPCMS/img/admin_dev_demo.png)
+![admin_dev_demo](https://github.com/newbienewbie/notes/raw/master/ProgrammingLanguage/PHP/PHPCMS/img/admin_dev_demo.png)
 
 
 # PHPCMS二次开发安装包设计
