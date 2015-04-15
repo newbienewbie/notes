@@ -55,6 +55,7 @@ values
 # PHPCMS二次开发安装包设计
 
 开发好了新的模块，为了方便别人更好的使用，需要提供安装包。所谓安装包，其实只是一些列文件罗列，PHPCMS会自动复制这些文件到相关文件夹下。
+
 * xx/
 ** modules/
 *** classes/    #模块类库，通过load_app_class($class,$module,$initialize)加载
