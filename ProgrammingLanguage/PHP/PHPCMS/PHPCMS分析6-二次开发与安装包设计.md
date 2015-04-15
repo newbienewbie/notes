@@ -11,7 +11,8 @@ http://localhost/phpcms/index.php?m=mymodule&c=my_controller&a=init
 http://localhost/phpcms/index.php?m=mymodule&c=my_admin&a=init
 ```
 会因pc_hash校验失败而被拒绝访问。
-![pc_hash_failed](https://github.com/newbienewbie/notes/raw/master/programmingLanguage/PHP/PHPCMS/img/pc_hash_failed.png)
+
+![pc_hash_failed](https://github.com/newbienewbie/notes/raw/master/ProgrammingLanguage/PHP/PHPCMS/img/pc_hash_failed.png)
 
 其机理在于后台控制器继承自admin类，admin的__construct()会调用check_hash方法，当客户端传来的hash失败时就会提示这样的对话框了。
 
@@ -40,6 +41,7 @@ values
 再新建模块为snptest，控制器snptest，init方法为输出 ``this is admin from snptest``
 
 刷新缓存后访问后台即可：
+
 ![admin_dev_demo](https://github.com/newbienewbie/notes/raw/master/programmingLanguage/PHP/PHPCMS/img/admin_dev_demo.png)
 
 
