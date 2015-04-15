@@ -26,7 +26,7 @@ http://localhost/phpcms/index.php?m=mymodule&c=my_admin&a=init
 * 请求当前current_pos
 * 还有一个跨域请求被屏蔽了……
 
-![menu_clicked](https://github.com/newbienewbie/notes/raw/master/programmingLanguage/PHP/PHPCMS/img/menu_clicked.png)
+![menu_clicked](https://github.com/newbienewbie/notes/raw/master/ProgrammingLanguage/PHP/PHPCMS/img/menu_clicked.png)
 
 所以，当添加一条记录
 
