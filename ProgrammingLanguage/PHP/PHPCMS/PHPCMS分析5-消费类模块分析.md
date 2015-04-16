@@ -50,6 +50,17 @@ ENGINE=MyISAM
 ```
 
 ## 消费类
+PHPCMS提供了一个静态类，帮助操作数据库,只需要利用
+
+```PHP
+spend::amount()
+```
+和
+```PHP
+spend::point()
+```
+即可进行消费金钱和积分
+
 
 ```PHP
 
