@@ -47,7 +47,7 @@ values
 
 
 
-再未配置权限表的情况下，利用root角色，刷新缓存后访问后台即可看到效果为：
+在未配置权限表的情况下，利用root角色，刷新缓存后访问后台即可看到效果为：
 
 ![admin_dev_demo](https://github.com/newbienewbie/notes/raw/master/ProgrammingLanguage/PHP/PHPCMS/img/admin_dev_demo.png)
 
