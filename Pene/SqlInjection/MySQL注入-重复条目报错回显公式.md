@@ -10,7 +10,7 @@
 ```SQL
 SELECT ... 
 FROM ... 
-WHERE id= 1' and 1=2
+WHERE id= '1' and 1=2
 UNION
 SELECT 1
 FROM (
@@ -37,7 +37,7 @@ select 1 from ( 会产生duplicate entry的子查询语句 )b -- 。这里MySQL�
 
 ```SQL
 ...
-WHERE id= 1' and 1=2
+WHERE id= '1' and 1=2
 UNION
 SELECT 1
 FROM (
