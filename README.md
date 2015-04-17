@@ -1,5 +1,7 @@
 # 挨踢信笔,不亦说乎？
 
+这里主要是我个人的笔记、总结。
+
 ## [Programming Language](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage)
 
 * [Python](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/Python)
