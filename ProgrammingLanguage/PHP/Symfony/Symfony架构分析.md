@@ -1,0 +1,448 @@
+# Symfony架构分析
+
+最开始接触Django网络编程的时候，觉得Django和微软一样，大而全,最关键的是难以单独拿出一个模块去用到其他程序中去。让我受不了的是视图类各种Mixin，那种多继承的混乱实在是一种折磨 。而且Django的MVC概念和普通的MVC 还很不一样。
+
+接触到的第一个PHP 框架就是CodeIgniter。轻巧，入门简单,概念清晰。
+
+然而我快发现，我很难复用CodeIgniter的代码--代码耦合度太高了，所以我开始试着写了一个自己的MVC框架 [Bamboo](https://github.com/newbienewbie/Bamboo)。我想包装自己的类和模块，这样我只要像搭积木一样搭建网站了。当然，我只写了个基本框架，下面的重头戏是把所有的模块都自己实现。比如，Logger，Security，Upload，etc.我开始意识到这是个浩大的工程，然后计划搁浅了。
+
+直到有一天,我在Laravel里看到了它使用了Symfony组件的时候，我才发现，原来我走了好大一个弯路。Symfony是可复用的,是组件化的。
+
+
+## Request-Response模型
+
+HTTP协议实际上便是一个Request-Response模型。与之相关的代码实际上都在做着`解释请求、生成响应`的工作，与纯PHP不同，Symfony将Request和Response对象化了。Request-Response模型是整个Symfony的基础模型。每一次为Symfony添加新的页面，都是在应用这个模型。
+
+
+Request类很简单，封装了原生PHP的各大超全局输入变量
+```PHP
+use Symfony\Component\HttpFoundation\Request
+
+
+$request = Request::createFromGlobals();
+
+$request->getPathInfo();    //the URI being requested (e.g. /about) minus any query parameters
+$request->query->get('foo');    //$_GET 
+$request->request->get('bar', 'default value if bar does not exist');    /$_POST
+$request->server->get('HTTP_HOST');    //$_SERVER
+$request->files->get('foo');     //retrieves an instance of UploadedFile identified by foo
+$request->cookies->get('PHPSESSID');   //$_COOKIE 
+$request->headers->get('host');
+$request->headers->get('content_type');
+$request->getMethod();    //GET, POST, PUT, DELETE, HEAD
+$request->getLanguages(); // an array of languages the client accepts
+```
+
+
+Response类也非常简单，用来代替原生PHP的echo(),header()
+```PHP
+Symfony\Component\HttpFoundation\Response
+
+$response = new Response();
+
+$response->setContent('<html><body><h1>Hello world!</h1></body></html>');
+$response->setStatusCode(Response::HTTP_OK);
+$response->headers->set('Content-Type', 'text/html');
+// prints the HTTP headers followed by the content
+
+$response->send();
+```
+
+## Front Controller、Router、控制器和视图
+
+![Symfony分层架构图](#)
+
+> 说来惭愧，第一次看到Front Controller的概念是在PHPWind的9.x的源代码里看到的，当时还天真的以为它是PHPWind9.x的开发人员想出来的名词。后来看Symfony也有这个概念，这才发现原来自己是多么的孤陋寡闻。
+
+众所周知，MVC设计模式解耦效果是巨大的，按照这种模式写程序，代码会以各个独立的模块分层存在。为了根据请求的不同调用合适的模块，一些如CodeIgniter的框架(包括我自己写的Bamboo)都有一个统一入口文件(index.php)负责这项工作。
+在Symfony等一些框架(其他如PHPWind9.x以后的版本)中，单独抽象出了Front Controller的概念。和CodeIgniter中的index.php一样，Front Controller是一个统一入口，一切发到我们Application的请求都会由其处理，然后根据接收到的Request不同，按照配置的Route规则加载对应的Controller的Action。
+处理请求之后，生成响应对象并send()到客户端。
+
+根据环境的不同，Symfony自带有两个Front Controller：
+
+* web/app.php    #生产环境
+* web/app_dev.php  #_开发环境
+
+之所以没有测试环境对应的前端控制器，是因为测试环境可以通常只在单元测试时使用。
+
+当然console工具也提供了能在任意环境下运行的Front Controller。
+
+
+Symfony中的Front Controller非常简单，遵循的逻辑可以概括为"`处理请求，发送响应`",这也是Symfony对Request-Response模型的概括。
+
+```PHP
+// web/app.php
+
+require_once __DIR__.'/../app/bootstrap.php';
+require_once __DIR__.'/../app/AppKernel.php';
+use Symfony\Component\HttpFoundation\Request;
+
+//初始化一个prod环境、非debug模式运行的AppKernel
+$kernel = new AppKernel('prod', false);
+
+$kernel->handle(Request::createFromGlobals())    //处理请求
+        ->send();    //发送响应
+```
+
+正是由于Front Controller搭建了Request-Response这样的框架，在Symfony中添加一个页面只需要要遵循两至三步：
+
+1. 配置Route    #配置URL和Controller的映射关系
+2. 创建Controller    #生成Response对象
+3. 创建模板    #可选操作，用来render成Response对象
+
+
+## Bundle
+
+### 创建Bundle
+
+Bundle是Symfony的基本组件。Bundle就是存放了与某个特性相关的一切文件(比如PHP类、配置、甚至是css文件和JavaScript文件)的目录。
+事实上，Symfony的Bundle和PHPCMS里的module作用相当。但是具有更好的抽象和实现。
+
+一个Bundle，通常位于src/VenderOfBundle/BundleName之下,其中的目录结构多为：
+
+Vender/
+    YourBundle/
+        VenderYourBundle.php
+        Controller/               #控制器
+            Spec1Controller.php
+            Spec2Controller.php
+        DependencyInjection/      #DI
+        Resources/
+            config/
+            views/
+        Tests/                    #测试
+
+添加一个Bundle，应该先创建以上目录，然后修改app/Kernel.php文件，为registerBundles()方法添加一个该Bundle的实例：
+
+```PHP
+// app/AppKernel.php
+
+public function registerBundles(){
+
+    $bundles=array(
+        //...
+        new Vender\YourBundle\VenderYourBundle();
+    );
+
+    //...
+
+    return $bundles;
+}
+```
+
+当然，添加Bundle的这些步骤可以用一个命令代替：
+
+```bash
+    php app/console generate:bundle --namespace=Vender/YourBundle --format=yml
+```
+
+### 创建Route
+
+Route是指从Request（如URL路径,HTTP Method)到控制器(具体到Action)的映射。所以， 一条路由规则有两个要素组成：
+
+1. URL Path
+2. 与URL Path匹配的Controller
+
+我们还可以为这条路由规则起一个独一无二的名字，这样我们就能用于生成URL了。
+
+路由层的作用就是把输入进来的URL转换为要执行的Controller。
+
+Symfony会从一个单独的路由配置文件中加载所有的路由规则。这个路由配置文件通常是
+
+`app/config/routing.yml`
+
+,当然，Symfony支持高度定制，我们可以把默认的路由文件配置成其他任意其他文件(包括XML和PHP文件)。如：
+
+```YAML
+# app/config/config.yml
+framework
+    # ....
+    router: { resource: "%kernel.root_dir%/config/routing.yml"}
+```
+
+
+
+当然，从URL到控制器动作，参数匹配是必不可少的。Symfony的路由系统支持:
+
+* URL匹配         #通过@Route()设置
+    * 必选参赛    #通过占位符来设置
+    * 可选参数    #通过占位符和设置defaults来设置
+    * 正则匹配    #通过requirements设置
+* HTTP Method匹配 #通过@Method()
+
+```PHP
+/**
+ *@Route("/blog/{page}",defaults={"page": 1},requirements={
+ *    "page": "\d+"
+ *})
+ *@Method("GET")
+ */
+public function indexAction($page){
+    //...
+}
+```
+
+当然，威力更巨大的是condition属性，支持无限可能的定制。
+```YAML
+contact:
+    path: /contact
+    defaults: { _controller: AcmeDemoBundle:Main:contact}
+    condition: "context.getMethod() in ['GET','HEAD'] and request.headers.get('User-Agent') matches '/firefox/i' "
+```
+这个配置会被转换为以下的PHP代码：
+```PHP
+if(rtrim($pathinfo,"/contact")===''&&
+    (
+        in_array($context->getMethod(),array(0=>'GET',1=>'HEAD')) &&
+        preg_match('/firefox/i',$request->headers->get("User-Agent"))
+    )
+    
+){
+    //....
+}
+```
+
+
+
+#### 一个Bundle中的Route
+
+要让合适的Controller和Action发生调用，必须建立url与之的映射。
+
+```PHP
+#src/Vender/YourBundle/Resources/config/routing.yml
+
+specController:
+    path: /specController/{limit}
+    defaults: { _controller: VenderYourBundle:specController:yourAction}
+
+```
+
+
+#### app级Route
+
+尽管所有的路由配置规则是从一个单独的文件中读取的，大家在实际中还是会通过`resource`导入其他路由规则。比如，使用Annotation格式的路由配置应设置:
+
+```YAML
+app: 
+    resource: "@AppBundle/Controller"
+    type: annotation  #使用Annotation reader来读取resource变量
+```
+
+如果我们手工添加了一个Bundle，我们可以把它自身包含的Route规则导入app level的配置中，即应该在app/config/routing.yml中添加配置：
+
+```YAML
+# app/config/routing.yml
+
+vender_yourbundlename
+    resource: "@VenderYourBundle/Resources/config/routing.yml"
+    prefix: /
+    
+```
+当然，如果是用`php app/console generate:bundle`命令生成的bundle，那么这一步已经由Symfony替我们做好了。
+
+
+#### 双向映射
+
+Route提供了bidirectional System:
+
+1. match($URL)      #返回匹配到的控制器及参数构成的数组
+2. generate($RouteName,$paramsArray)       #生成URL
+
+
+### 创建Controller
+
+我们知道，每一个Route规则都有一个`_controller`对象，我们当然可以用
+
+`完全限定名的ClassName::ActionName`
+
+的形式来引用一个Controller，比如：
+
+`AppBundle\Controller\BlogController::ShowAction `。
+
+但实际上这样的表达是有冗余信息的，最起码还要指出BlogController位于的命名空间Controller是没必要的，所以Symfony还支持对Controller的逻辑命名, 一条指定Controller的Action的逻辑命名通常遵循这样的约定：
+
+`BundleName:ControllerName:ActionName`
+
+通常这样的逻辑名称会被映射为
+
+`path/to/BundleName/Controller/ControllerName.php`文件中的`ActionName`方法
+
+比如：
+
+`AcmeDemoBundle:Random:Index`
+
+这个控制器通常会会映射为：
+
+`Acme\DemoBundle\Controller\RandomController`类中的`indexAction`方法。
+
+
+
+另外值得注意的是，Symfony中Controller的Action 与CodeIgniter之类的框架并完全一样:
+
+1. CodeIgniter中的控制器直接输出响应，而Symfony中则是必须返回Response对象;
+2. Symfony支持从Route和Request定制Action方法的参数。而且对于Action方法声明，参数顺序并不重要。
+
+```PHP
+
+use Symfony\Component\HttpFoundation\Request;
+
+/**
+ * @Route("/hello/{firstName}/{lastName}",name="hello")
+ */
+public function indexAction($lastName,$firstName,Request $request){
+
+    //$firstName和$lastName等参赛顺序并不重要
+    //可以直接使用$request
+    $page=$request->query->get("page",1);
+}
+```
+
+此外，Symfony\Bundle\FrameworkBundle\Controller\Controller提供了一系列helper方法。
+
+* Redirecting
+    * generateUrl($route)
+    * redirect($absUrl)
+    * redirectToRoute($route)   # new RedirectResponse($this->generateUrl($route))
+* Rendering Templates
+    * render($pathOrLogicalTemplateName,$array)    #render a template and return a Response object 
+* Accessing other Services
+    * get('templating')
+    * get('router')
+    * get('mailer')
+* Exception
+* FlashMessage
+    * addFlash()
+* Forwarding
+
+
+
+
+
+
+### 创建Template
+
+和Controller的逻辑命名类似，模板的逻辑名称遵循这样的约定：
+
+` BundleName:ControllerName:TemplateName`
+
+一般会被映射会这样的物理地址：
+
+`path/to/BundleName/Resources/views/ControllerName/TemplateName`
+
+Twig模板的语法和Django模板语法非常相似。Twig提供了三种语法：
+
+1. {{ ... }}  #says sth
+2. {% ... %}  #does sth
+3. {# ... #}  #comment sth
+
+
+Twig链接：
+```HTML
+<a href="{{ path(routeName,context) }} " > home </a>
+<img src="{{ asserts(images/logo.png) }}"/>
+<link href="{{ asserts(css/blog.css) }}" rel='stylesheet' type='text/css' />
+```
+
+
+Twig也提供了filters:
+```PHP
+{{ title|upper }}
+
+```
+为了代码复用，Twig提供了include:
+```PHP
+{% include() %}
+```
+
+更有模板继承与重载:
+
+```PHP
+{% extends 'baseTemplateName' %}
+
+{% block XX  %}
+      {# overwrite here #}
+{% endblock  %}
+```
+
+此外，还可以嵌入其他控制器的渲染结果
+```PHP
+{{ render(Controller("LogicalContrllerName",context)) }}
+```
+配合hinclude.js，还可以实现异步加载：
+```PHP
+{{ render_hinclude(controller(‘...’)) }}
+{{ render_hinclude(url(‘...’)) }}
+```
+
+#### Template转义
+ 
+twig系统自带转义，如需原始输出，可以利用raw 过滤函数
+
+```PHP
+{{ article|raw  }}
+```
+PHP模板，可以使用
+```PHP
+<?php echo $view->escape($name)?>
+```
+进行转义。
+
+#### Template的全局变量
+
+* app.security
+* app.user        
+* app.request
+* app.session
+* app.environment
+* app.debug
+
+#### Template Services 
+
+Symfony模板系统的核心是模板引擎(服务)，
+
+从控制器渲染模板：
+```PHP
+return $this->render('article/index.html.twig');
+```
+与直接使用服务是等价的：
+```PHP
+use Symfony\Component\HttpFoundation\Response;
+$engine=$this->container->get('templating');
+$content=$engine->render('article/index.html.twig');
+$return $response=new Response($content);
+```
+
+Symfony的模板引擎可以在`app/config/config.yml`中配置：
+
+```YAML
+framework: 
+    #...
+    templating: { engines: ['twig']}
+```
+
+
+
+
+
+### Symfony目录结构
+
+Symfony的目录结构非常灵活，默认的结构组织形式为：
+
+    app/    #application config ,cache
+    src/    #project源码
+    vender/ #第三方依赖,由composer独占管理权
+    web/    #包含了公共访问文件,比如Front Controller和静态文件
+
+但是Symfony也支持任意定制目录结构。
+
+
+
+
+
+
+
+
+
+
+
+
