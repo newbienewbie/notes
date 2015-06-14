@@ -2,7 +2,7 @@
 
 接触到的第一个PHP 框架就是CodeIgniter。轻巧，入门简单,概念清晰。
 
-然而我快发现，我很难复用CodeIgniter的代码--代码耦合度太高了，所以我开始试着写了一个自己的MVC框架 [Bamboo](https://github.com/newbienewbie/Bamboo)。我想包装自己的类和模块，这样我只要像搭积木一样搭建网站了。当然，我只写了个基本框架，下面的重头戏是把所有的模块都自己实现。比如，Logger，Security，Upload，etc.我开始意识到这是个浩大的工程，然后计划搁浅了。
+然而我快发现，我很难复用CodeIgniter的代码--代码耦合度太高了，所以我开始试着写了一个自己的MVC框架 [Bamboo](https://github.com/newbienewbie/Bamboo)。我想包装自己的类和模块，这样我就可以搭积木一样搭建各种网站了。当然，我只写了个基本框架，下面的重头戏是把所有的模块都自己实现。比如，Logger，Security，Upload，etc.我开始意识到这是个浩大的工程，然后计划搁浅了。
 
 直到有一天,我在Laravel里看到了它使用了Symfony组件的时候，我才发现，原来我在视图造一个很大的轮子。Symfony是可复用的,是组件化的。
 
