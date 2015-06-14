@@ -1,20 +1,20 @@
 # Symfony架构分析
 
-最开始接触Django网络编程的时候，觉得Django和微软一样，大而全,最关键的是难以单独拿出一个模块去用到其他程序中去。让我受不了的是视图类各种Mixin，那种多继承的混乱实在是一种折磨 。而且Django的MVC概念和普通的MVC 还很不一样。
-
 接触到的第一个PHP 框架就是CodeIgniter。轻巧，入门简单,概念清晰。
 
 然而我快发现，我很难复用CodeIgniter的代码--代码耦合度太高了，所以我开始试着写了一个自己的MVC框架 [Bamboo](https://github.com/newbienewbie/Bamboo)。我想包装自己的类和模块，这样我只要像搭积木一样搭建网站了。当然，我只写了个基本框架，下面的重头戏是把所有的模块都自己实现。比如，Logger，Security，Upload，etc.我开始意识到这是个浩大的工程，然后计划搁浅了。
 
-直到有一天,我在Laravel里看到了它使用了Symfony组件的时候，我才发现，原来我走了好大一个弯路。Symfony是可复用的,是组件化的。
-
+直到有一天,我在Laravel里看到了它使用了Symfony组件的时候，我才发现，原来我在视图造一个很大的轮子。Symfony是可复用的,是组件化的。
 
 ## Request-Response模型
 
-HTTP协议实际上便是一个Request-Response模型。与之相关的代码实际上都在做着`解释请求、生成响应`的工作，与纯PHP不同，Symfony将Request和Response对象化了。Request-Response模型是整个Symfony的基础模型。每一次为Symfony添加新的页面，都是在应用这个模型。
+从本质上来说，HTTP协议实际上描述了一个Request-Response模型。与之相关的PHP代码实际上都在做着`解释请求、生成响应`的工作，Symfony则更进一步的将Request和Response对象化了。
 
+Request-Response模型是整个Symfony的基础模型，可以毫不夸张的说，整个Symfony都构筑在这个基础模型之上(参见Front Controller部分)。
 
-Request类很简单，封装了原生PHP的各大超全局输入变量
+### Request对象
+
+Request类很简单，封装了原生PHP的各大超全局输入变量:
 ```PHP
 use Symfony\Component\HttpFoundation\Request
 
@@ -34,7 +34,8 @@ $request->getLanguages(); // an array of languages the client accepts
 ```
 
 
-Response类也非常简单，用来代替原生PHP的echo(),header()
+### Response对象
+Response类也非常简单，用来代替原生PHP的echo(),header():
 ```PHP
 Symfony\Component\HttpFoundation\Response
 
@@ -48,11 +49,11 @@ $response->headers->set('Content-Type', 'text/html');
 $response->send();
 ```
 
-## Front Controller、Router、控制器和视图
+## Front Controller
 
 ![Symfony分层架构图](#)
 
-> 说来惭愧，第一次看到Front Controller的概念是在PHPWind的9.x的源代码里看到的，当时还天真的以为它是PHPWind9.x的开发人员想出来的名词。后来看Symfony也有这个概念，这才发现原来自己是多么的孤陋寡闻。
+说来惭愧，第一次看到Front Controller的概念还是在PHPWind的9.x的源代码里看到的，当时还天真的以为它是PHPWind9.x的开发人员想出来的名词。后来看Symfony也有这个概念，这才发现原来自己是多么的孤陋寡闻。当然，我们一直都在使用这个东西，只是不知道那就叫FrontController.
 
 众所周知，MVC设计模式解耦效果是巨大的，按照这种模式写程序，代码会以各个独立的模块分层存在。为了根据请求的不同调用合适的模块，一些如CodeIgniter的框架(包括我自己写的Bamboo)都有一个统一入口文件(index.php)负责这项工作。
 在Symfony等一些框架(其他如PHPWind9.x以后的版本)中，单独抽象出了Front Controller的概念。和CodeIgniter中的index.php一样，Front Controller是一个统一入口，一切发到我们Application的请求都会由其处理，然后根据接收到的Request不同，按照配置的Route规则加载对应的Controller的Action。
@@ -60,15 +61,14 @@ $response->send();
 
 根据环境的不同，Symfony自带有两个Front Controller：
 
-* web/app.php    #生产环境
-* web/app_dev.php  #_开发环境
+* `web/app.php`    #生产环境
+* `web/app_dev.php`  #开发环境
 
 之所以没有测试环境对应的前端控制器，是因为测试环境可以通常只在单元测试时使用。
 
 当然console工具也提供了能在任意环境下运行的Front Controller。
 
-
-Symfony中的Front Controller非常简单，遵循的逻辑可以概括为"`处理请求，发送响应`",这也是Symfony对Request-Response模型的概括。
+Symfony中的Front Controller非常简单，遵循的逻辑可以概括为"`处理请求，发送响应`",这也是整个Symfony框架对Request-Response模型的实现：
 
 ```PHP
 // web/app.php
@@ -84,7 +84,7 @@ $kernel->handle(Request::createFromGlobals())    //处理请求
         ->send();    //发送响应
 ```
 
-正是由于Front Controller搭建了Request-Response这样的框架，在Symfony中添加一个页面只需要要遵循两至三步：
+正是由于Front Controller已经搭建了Request-Response这样的框架，在Symfony中为一个基本组件（Bundle）添加页面只需要要遵循两至三步：
 
 1. 配置Route    #配置URL和Controller的映射关系
 2. 创建Controller    #生成Response对象
@@ -93,13 +93,12 @@ $kernel->handle(Request::createFromGlobals())    //处理请求
 
 ## Bundle
 
-### 创建Bundle
-
 Bundle是Symfony的基本组件。Bundle就是存放了与某个特性相关的一切文件(比如PHP类、配置、甚至是css文件和JavaScript文件)的目录。
-事实上，Symfony的Bundle和PHPCMS里的module作用相当。但是具有更好的抽象和实现。
+事实上，Symfony的Bundle和PHPCMS里的module作用相当，类似于模块、插件。但是相较于PHPCMS之类其他的框架，Symfony的Bundle具有更好的抽象和实现。
 
 一个Bundle，通常位于src/VenderOfBundle/BundleName之下,其中的目录结构多为：
 
+```
 Vender/
     YourBundle/
         VenderYourBundle.php
@@ -111,8 +110,9 @@ Vender/
             config/
             views/
         Tests/                    #测试
+```
 
-添加一个Bundle，应该先创建以上目录，然后修改app/Kernel.php文件，为registerBundles()方法添加一个该Bundle的实例：
+想要添加一个Bundle，应该先创建以上目录，然后修改app/Kernel.php文件，为registerBundles()方法添加一个该Bundle的实例：
 
 ```PHP
 // app/AppKernel.php
@@ -136,7 +136,7 @@ public function registerBundles(){
     php app/console generate:bundle --namespace=Vender/YourBundle --format=yml
 ```
 
-### 创建Route
+## Route
 
 Route是指从Request（如URL路径,HTTP Method)到控制器(具体到Action)的映射。所以， 一条路由规则有两个要素组成：
 
@@ -204,7 +204,7 @@ if(rtrim($pathinfo,"/contact")===''&&
 
 
 
-#### 一个Bundle中的Route
+### 一个Bundle中的Route
 
 要让合适的Controller和Action发生调用，必须建立url与之的映射。
 
@@ -218,7 +218,7 @@ specController:
 ```
 
 
-#### app级Route
+### app级Route
 
 尽管所有的路由配置规则是从一个单独的文件中读取的，大家在实际中还是会通过`resource`导入其他路由规则。比如，使用Annotation格式的路由配置应设置:
 
@@ -241,7 +241,7 @@ vender_yourbundlename
 当然，如果是用`php app/console generate:bundle`命令生成的bundle，那么这一步已经由Symfony替我们做好了。
 
 
-#### 双向映射
+### 双向映射
 
 Route提供了bidirectional System:
 
@@ -249,7 +249,7 @@ Route提供了bidirectional System:
 2. generate($RouteName,$paramsArray)       #生成URL
 
 
-### 创建Controller
+## Controller
 
 我们知道，每一个Route规则都有一个`_controller`对象，我们当然可以用
 
@@ -319,7 +319,7 @@ public function indexAction($lastName,$firstName,Request $request){
 
 
 
-### 创建Template
+## Template
 
 和Controller的逻辑命名类似，模板的逻辑名称遵循这样的约定：
 
@@ -339,8 +339,8 @@ Twig模板的语法和Django模板语法非常相似。Twig提供了三种语法
 Twig链接：
 ```HTML
 <a href="{{ path(routeName,context) }} " > home </a>
-<img src="{{ asserts(images/logo.png) }}"/>
-<link href="{{ asserts(css/blog.css) }}" rel='stylesheet' type='text/css' />
+<img src="{{ assets(images/logo.png) }}"/>
+<link href="{{ assets(css/blog.css) }}" rel='stylesheet' type='text/css' />
 ```
 
 
@@ -374,7 +374,7 @@ Twig也提供了filters:
 {{ render_hinclude(url(‘...’)) }}
 ```
 
-#### Template转义
+### Template转义
  
 twig系统自带转义，如需原始输出，可以利用raw 过滤函数
 
@@ -387,7 +387,7 @@ PHP模板，可以使用
 ```
 进行转义。
 
-#### Template的全局变量
+### Template的全局变量
 
 * app.security
 * app.user        
@@ -396,7 +396,7 @@ PHP模板，可以使用
 * app.environment
 * app.debug
 
-#### Template Services 
+### Template Services 
 
 Symfony模板系统的核心是模板引擎(服务)，
 
@@ -424,7 +424,7 @@ framework:
 
 
 
-### Symfony目录结构
+## Symfony目录结构
 
 Symfony的目录结构非常灵活，默认的结构组织形式为：
 
