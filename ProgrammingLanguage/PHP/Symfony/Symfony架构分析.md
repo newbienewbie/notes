@@ -93,7 +93,17 @@ $kernel->handle(Request::createFromGlobals())    //处理请求
 
 ## Bundle
 
-Bundle是Symfony的基本组件。Bundle就是存放了与某个特性相关的一切文件(比如PHP类、配置、甚至是css文件和JavaScript文件)的目录。
+Bundle从PHP的角度而言，可以视作一个命名空间。一旦一个PHP命名空间添加了Bundle Class，就成为Bundle。这个Bundle Class的命名必须遵循以下规则：
+
+* 只使用字母和下划线
+* 使用CamelCased命名风格
+* 使用descriptive和short的名字
+* 以vender名为prefix
+* 以"Bundle"为suffix
+
+Bundle Class的getClass()方法返回这个类名。
+
+Bundle是Symfony的基本组件。Bundle存放了与某个特性相关的一切文件(比如PHP类、配置、甚至是css文件和JavaScript文件)的目录。
 事实上，Symfony的Bundle和PHPCMS里的module作用相当，类似于模块、插件。但是相较于PHPCMS之类其他的框架，Symfony的Bundle具有更好的抽象和实现。
 
 一个Bundle，通常位于src/VenderOfBundle/BundleName之下,其中的目录结构多为：
