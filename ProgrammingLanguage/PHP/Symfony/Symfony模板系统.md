@@ -1,0 +1,126 @@
+# Template
+
+Template的逻辑命名和Controller的类似，模板的逻辑名称遵循这样的约定：
+
+`BundleName:ControllerName:TemplateName`
+
+一般会被映射会这样的物理地址：
+
+1. `app/Resources/{BundleName}/views/ControllerName/TemplateName`
+2. `{path/to/BundleName/}Resources/views/ControllerName/TemplateName`
+
+当第1个地址找不到对应的模板时，会继续查找第2个位置的模板。
+
+## Template Services 
+
+Symfony模板系统的核心是模板引擎(服务)，
+
+从控制器渲染模板：
+```PHP
+return $this->render('article/index.html.twig');
+```
+与直接使用服务是等价的：
+```PHP
+use Symfony\Component\HttpFoundation\Response;
+$engine=$this->container->get('templating');
+$content=$engine->render('article/index.html.twig');
+$return $response=new Response($content);
+```
+
+Symfony的模板引擎可以在`app/config/config.yml`中配置：
+
+```YAML
+framework: 
+    #...
+    templating: { engines: ['twig']}
+```
+
+## Twig模板
+
+Twig模板的语法和Django模板语法非常相似。Twig提供了三种语法：
+
+1. {{ ... }}  #says sth
+2. {% ... %}  #does sth
+3. {# ... #}  #comment sth
+
+
+### Twig链接：
+
+```HTML
+<a href="{{ path(routeName,context) }} " > home </a>
+<img src="{{ assets(images/logo.png) }}"/>
+<link href="{{ assets(css/blog.css) }}" rel='stylesheet' type='text/css' />
+```
+
+
+### Twig filters:
+
+```PHP
+{{ title|upper }}
+
+```
+
+### Twig模板嵌入
+
+为了代码复用，Twig提供了include:
+```PHP
+{% include() %}
+```
+
+### Twig模板继承与重载:
+
+```PHP
+{% extends 'baseTemplateName' %}
+
+{% block XX  %}
+    {{ parent() }}
+    {# overwrite here #}
+{% endblock  %}
+```
+
+一种常用的模板继承是三层方案。
+1. 为整个网站创建基础模板`app/Resources/views/base.html.twig`
+2. 为某一类特定功能创建模板`spec/layout.html.twig`(继承自第1层模板)
+3. 为每一个单独的页面创建模板 (继承自第2层模板)
+
+
+
+
+
+
+### Twig模板嵌入其他控制器
+
+此外，还可以嵌入其他控制器的渲染结果
+```PHP
+{{ render(Controller("LogicalContrllerName",context)) }}
+```
+配合hinclude.js，还可以实现异步加载：
+```PHP
+{{ render_hinclude(controller('...')) }}
+{{ render_hinclude(url('...')) }}
+```
+
+### Twig Template转义
+ 
+twig系统自带转义，如需原始输出，可以利用raw 过滤函数
+
+```PHP
+{{ article|raw  }}
+```
+PHP模板，可以使用
+```PHP
+<?php echo $view->escape($name)?>
+```
+进行转义。
+
+## Template的全局变量
+
+不管是Twig模板，还是纯PHP模板，Symfony都为之提供了一个变量`app`
+
+* app.security  #deprecated since 2.6
+* app.user        
+* app.request
+* app.session
+* app.environment
+* app.debug
+
