@@ -154,6 +154,10 @@ public function registerBundles(){
     return $bundles;
 }
 ```
+以上两步可以归纳为：
+
+1. 创建Bundle
+2. 注册Bundle
 
 当然，添加Bundle的这些步骤可以用一个命令代替：
 
@@ -342,14 +346,21 @@ public function indexAction($lastName,$firstName,Request $request){
 
 ## Symfony目录结构
 
-Symfony的目录结构非常灵活，默认的结构组织形式为：
+Symfony的基本架构便如上文所述，十分清晰。与架构相对应，Symfony的目录结构也是非常清晰的。默认的结构组织形式为：
 
-    app/    #application config ,cache
+    app/    #application config ,cache,
     src/    #project源码
     vender/ #第三方依赖,由composer独占管理权
     web/    #包含了公共访问文件,比如Front Controller和静态文件
 
-但是Symfony也支持任意定制目录结构。
+`web/`目录类似于网站的根目录，一切的公开访问都是从这里开始的，其下的Front Controller文件如`app.php`和`app_dev.php`是整个网站的入口管理文件。其他一些静态资源也会以一定的结构组织在这个目录下。
+
+`app/`目录是Application级的一些文件存放地。如`app/console`、`app/config`，`app/cache`
+
+`src/`目录是针对网站各个功能的源码存放地，其中文件一般以各个Vender提供的Bundle分别组织。
+
+
+尽管拥有如此清晰的文件结构，Symfony也支持任意定制目录结构。
 
 
 
