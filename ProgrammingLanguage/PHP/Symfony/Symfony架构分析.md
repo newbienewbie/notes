@@ -55,7 +55,7 @@ $response->send();
 
 说来惭愧，第一次看到Front Controller的概念还是在PHPWind的9.x的源代码里看到的，当时还天真的以为它是PHPWind9.x的开发人员想出来的名词。后来看Symfony也有这个概念，这才发现原来自己是多么的孤陋寡闻。当然，我们一直都在使用这个东西，只是不知道那就叫FrontController.
 
-众所周知，MVC设计模式解耦效果是巨大的，按照这种模式写程序，代码会以各个独立的模块分层存在。为了根据请求的不同调用合适的模块，一些如CodeIgniter的框架(包括我自己写的Bamboo)都有一个统一入口文件(index.php)负责这项工作。
+一般情况下，代码会以各个独立的模块分层存在。为了根据请求的不同调用合适的功能代码，一些如CodeIgniter的框架(包括我自己写的Bamboo)都有一个统一入口文件(index.php)负责这项工作。
 在Symfony等一些框架(其他如PHPWind9.x以后的版本)中，单独抽象出了Front Controller的概念。和CodeIgniter中的index.php一样，Front Controller是一个统一入口，一切发到我们Application的请求都会由其处理，然后根据接收到的Request不同，按照配置的Route规则加载对应的Controller的Action。
 处理请求之后，生成响应对象并send()到客户端。
 
@@ -84,12 +84,27 @@ $kernel->handle(Request::createFromGlobals())    //处理请求
         ->send();    //发送响应
 ```
 
+至此，针对HTTP协议模型处理流程的已经规划完毕了。当我们在浏览器中访问：
+
+`.../web/some_route`     
+
+实际上是在通过Front Controller来执行特定的代码。事实上，上面这个URL在默认情况下等效于：
+
+`.../web/app.php/some_route`
+
+当然，在开发模式下，可以访问：
+
+`.../web/app_dev.php/some_route`
+
+激活debug工具并能自动重建缓存。
+
 正是由于Front Controller已经搭建了Request-Response这样的框架，在Symfony中为一个基本组件（Bundle）添加页面只需要要遵循两至三步：
 
 1. 配置Route    #配置URL和Controller的映射关系
 2. 创建Controller    #生成Response对象
 3. 创建模板    #可选操作，用来render成Response对象
 
+当然，为了避免组织混乱、保持结构清晰，实际中，Route、Controller·等等都是以Bundle来设计的。
 
 ## Bundle
 
