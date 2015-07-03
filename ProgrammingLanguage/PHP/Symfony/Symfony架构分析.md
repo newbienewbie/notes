@@ -84,27 +84,28 @@ $kernel->handle(Request::createFromGlobals())    //处理请求
         ->send();    //发送响应
 ```
 
-至此，针对HTTP协议模型处理流程的已经规划完毕了。当我们在浏览器中访问：
+至此，针对Request-Response模型的处理流程已经总体规划完毕了。
 
-`.../web/some_route`     
+对于一个Symfony项目`myproj`,为了方便起见，假设整个文件夹都位于`/var/www/`下,当我们在浏览器中访问：
 
-实际上是在通过Front Controller来执行特定的代码。事实上，上面这个URL在默认情况下等效于：
+`localhost/myproj/web/some_route`     
 
-`.../web/app.php/some_route`
+实际上是在调用Front Controller来执行与some_route对应的代码。事实上，上面这个URL在默认情况下等效于：
+
+`localhost/myproj/web/app.php/some_route`
 
 当然，在开发模式下，可以访问：
 
-`.../web/app_dev.php/some_route`
+`localhost/myproj/web/app_dev.php/some_route`
 
 激活debug工具并能自动重建缓存。
 
-正是由于Front Controller已经搭建了Request-Response这样的框架，在Symfony中为一个基本组件（Bundle）添加页面只需要要遵循两至三步：
+正是由于Front Controller已经实现了Request-Response这样的基本流程，在Symfony中为一个基本组件（Bundle）添加页面只需要要遵循两步：
 
-1. 配置Route    #配置URL和Controller的映射关系
-2. 创建Controller    #生成Response对象
-3. 创建模板    #可选操作，用来render成Response对象
+1. 创建Controller    #定义如何根据Response生成Response对象
+2. 配置Route    #配置URL和Controller的映射关系
 
-当然，为了避免组织混乱、保持结构清晰，实际中，Route、Controller·等等都是以Bundle来设计的。
+当然，为了避免组织混乱、保持结构清晰，实际中，Route、Controller等等都是以Bundle来设计的。
 
 ## Bundle
 
