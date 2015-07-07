@@ -58,6 +58,8 @@ $sc->register('newsletter_mgr','NewsLetterMgr')
 
 
 ```
+当然Symfony还支持Property injection,不过这可能带来一些问题。
+
 
 通过容易获取注册的服务对象很简单,利用get()即可：
 
@@ -66,7 +68,7 @@ $svr=$sc->get('srv_name');
 ```
 
 
-## 配置文件与依赖注入
+## 用配置文件定义依赖注入
 
 除了使用PHP代码，我们还可以使用配置文件，如XML、YAML来定义服务。当然，这样一来，我们需要Symfony/Config组件。
 
@@ -121,9 +123,11 @@ services:
         class: Mailer
         arguments: ["%mailer.transport%"]
     newsletter_mgr: 
-        class: NewsLetterMgr
-        calls:
+        class: NewsLetterMgr    #contruction injection
+        calls:                  #setter injection
             -[setMailer,["%mailer%"]]
+        properties:             #perperty injection
+            #...
 
 ```
 
