@@ -99,7 +99,10 @@ Symfony支持不同的资源加载方法，:
 * JsonFileLoader
 * YamlFileLoader
 * ...
+
 所有的文件加载器都依赖Symfony/Config组件。
+
+加载Translation Resources的示例代码为:
 
 ```PHP
 $translator->addLoader('xlf',new XliffFileLoader());
@@ -116,7 +119,7 @@ $translator->addResource('xlf','navigation.fr.xlf','fr_FR','navigation');
 1. 从translation resources中加载翻译好的message一览表(catalog)
 2. 从catalog中定位message并返回对应的翻译。如果定位不到，则返回原始message。
 
-可以通过调用`trans()`或者`transChoice()`执行这个过程。
+可以通过调用`ITranslator`接口提供两个关键的方法`trans()`或者`transChoice()`来执行这个过程。
 
 ```PHP
 public function trans($id, array $parameters = array(), $domain = null, $locale = null);
