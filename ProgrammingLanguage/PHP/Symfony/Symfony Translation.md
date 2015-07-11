@@ -3,7 +3,7 @@
 翻译的过程可以理解为从`source`到`target`的过程。Symfony/Translation这个组件的工作流程大致可以分为三步：
 
 0. 创建翻译器
-1. 为翻译器加载资源: 利用资源加载器加载资源(`source`到`target`的消息映射关系）
+1. 为翻译器添加资源: `source`到`target`的消息映射关系
 2. 根据`domain`、`locale`及对应的`message`给出译文`translation`。  
 
 ## 创建翻译器
@@ -52,7 +52,7 @@ symfony.great:    J'aime Symfony
 ```
 
 再如PHP的Array：
-```
+```PHP
 return array(
     'Symfony is great' => 'J\'aime Symfony',
     'symfony.great'    => 'J\'aime Symfony',
@@ -100,7 +100,41 @@ Symfony支持不同的资源加载方法，:
 * YamlFileLoader
 * ...
 
-所有的文件加载器都依赖Symfony/Config组件。
+所有的加载器都实现了LoaderInterface接口，其load()方法返回一个catalog以用作将来的翻译。
+
+我们还可以设置定义自己的资源类型，比如采用
+
+```
+(source)(target)
+```
+
+这种形式，只要我们为之定义加载器：
+
+```PHP
+use Symfony\Component\Translation\MessageCatalogue;
+use Symfony\Component\Translation\Loader\LoaderInterface;
+
+class MyFormatLoader implements LoaderInterface
+{
+    public function load($resource, $locale, $domain = 'messages')
+    {
+        $messages = array();
+        $lines = file($resource);
+
+        foreach ($lines as $line) {
+            if (preg_match('/\(([^\)]+)\)\(([^\)]+)\)/', $line, $matches)) {
+                $messages[$matches[1]] = $matches[2];
+            }
+        }
+
+        $catalogue = new MessageCatalogue($locale);
+        $catalogue->add($messages, $domain);
+
+        return $catalogue;
+    }
+
+}
+```
 
 加载Translation Resources的示例代码为:
 
@@ -111,6 +145,7 @@ $translator->addResource('xlf','message.fr.xlf','fr_FR','admin');
 $translator->addResource('xlf','navigation.fr.xlf','fr_FR','navigation');
 
 ```
+
 
 ## 翻译过程
 
