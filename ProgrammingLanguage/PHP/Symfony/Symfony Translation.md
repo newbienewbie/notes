@@ -130,6 +130,15 @@ public function transChoice($id, $number, array $parameters = array(), $domain =
 
 ```PHP
 $translator->trans('hello, %name%',array('name'=>'Chicago'),'admin','fr_FR');
+
+$translator->transChoice(
+    '{0} There are no apples|{1} There is one apple|]1,Inf[ There are %count% apples',
+    10,
+    array('%count%' => 10),
+    'messages',
+    'fr_FR'
+);
+
 ```
 
 
@@ -137,7 +146,7 @@ $translator->trans('hello, %name%',array('name'=>'Chicago'),'admin','fr_FR');
 
 来自官方文档的[一个例子](http://symfony.com/doc/current/components/translation/usage.html)：
 
-```
+```PHP
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 
