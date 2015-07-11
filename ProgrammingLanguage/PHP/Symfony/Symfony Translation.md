@@ -4,7 +4,7 @@
 
 0. 创建翻译器
 1. 为翻译器加载资源: 利用资源加载器加载资源(`source`到`target`的消息映射关系）
-2. 根据`domain`、`locale`及对应的源`message`给出翻译结果。  
+2. 根据`domain`、`locale`及对应的`message`给出译文`translation`。  
 
 ## 创建翻译器
 
