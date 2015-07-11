@@ -1,6 +1,6 @@
 # Symfony Translation
 
-翻译的过程可以理解为从`source`到`target`的过程。Symfony/Translation这个组件的工作流程大致可以分为三步：
+翻译的过程可以理解为从消息`message`到译文`translation`的过程。Symfony/Translation这个组件的工作流程大致可以分为三步：
 
 0. 创建翻译器
 1. 为翻译器添加资源: `source`到`target`的消息映射关系
