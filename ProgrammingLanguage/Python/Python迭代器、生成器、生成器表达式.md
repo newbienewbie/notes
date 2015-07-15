@@ -73,15 +73,15 @@ for i in a_list:
 以下代码引自《深入 Python 3》第七章：
 ```Python
 classFib:
-    def__init__(self, max):
+    def __init__(self, max):
         self.max = max
 
-    def__iter__(self):
+    def __iter__(self):
         self.a = 0
         self.b = 1
         returnself
 
-    def__next__(self):
+    def __next__(self):
         fib = self.a
         if fib > self.max:
             raise StopIteration
