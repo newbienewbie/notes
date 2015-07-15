@@ -37,19 +37,20 @@ Python3.x提供了2个内置函数来实现这一控制。
 
 > iterable：可迭代对象。一种能够一次返回其一个member的object（”An object capable of returning its members one at a time”）。这句话读起来很拗口，不准确的说，iterable代表了序列、集合和其他类似集合的对象，他们是可以迭代的，他们是一系列item的整体。 iterables例子包括所有的sequence types（比如list，str, and tuple）和一些如dict、file以及一些你定义了__iter__()或__getitem__()方法的Class的非序列类型 。iterable能被用于for循环和其他需要一个sequence的场景。可以用iter(iterable)返回一个iterator。当使用iterables，通常没必要自己亲自调用iter()或者处理iterator 对象。for语句会帮我们自动创建未命名的临时变量来容纳loop持续期间的iterator。
 
-> iterator：迭代器。一种代表了数据流的对象（An object representing a stream of data）. 在这数据流中，会重复调用iterator's的__next__()方法，并返回成功了的items。当没有合适数据的时候会引发StopIteration 异常 。所有迭代器都要求实现一个能返回自身iterator对象的__iter__() 方法 ，所以每一个iterator都是一个iterable，并且能被用在很多能接受iterables地方。值得注意的是，每次将container object传递给iter()，或者在for-loop里调用，都会产生一个崭新的iterator。
+> iterator：迭代器。一种代表了一系列数据的对象（An object representing a stream of data）. 在这一系列数据的对象中，会重复调用iterator's的__next__()方法，并返回成功了的items。当没有合适数据的时候会引发StopIteration 异常 。所有迭代器都要求实现一个能返回自身iterator对象的__iter__() 方法 ，所以每一个iterator都是一个iterable，并且能被用在很多能接受iterables地方。值得注意的是，每次将container object传递给iter()，或者在for-loop里调用，都会产生一个崭新的iterator。
 
-不准确的说
+不准确的说，对于Python
 * 如果一个对象，拥有__iter__()方法（可以给定自己初始状态），则其为iterable。
 * 如果一个对象，拥有__iter__()和__next__()方法（可以给定自己的初始状态+可以从一个状态变化到另一个后续状态），则其为迭代器。
 
-``注意：不要以为是序列类型（如list,tuple,str）是迭代器，他们是可迭代对象``。如果你直接对调用next(list)就会发现系统提示你list object is not an iterator。对于一个list对象a_list，可以通过iter(a_list)生成一个迭代对象，也可以通过生成器表达式或者生产器函数得到一个迭代器。参见生成器
+``注意：不要以为Python的序列类型（如list,tuple,str）是迭代器，实际上它们只是可迭代对象``。如果你直接对调用next(list)就会发现系统提示你list object is not an iterator。对于一个list对象a_list，可以通过iter(a_list)生成一个迭代对象，也可以通过生成器表达式或者生产器函数得到一个迭代器。参见生成器
 
 那么为什么要区分一个可迭代对象和迭代器对象呢？其理由和Java中的iterable、iterator一样。
 简单的说，
 * iterable更多的是代表了一个包含若干items的整体，这类整体是可以进行迭代(遍历)的；
 * 而iterator则更多表达了一个拥有当前状态的iterable对象，这个iterator对象会经过next()对其自身的状态进行变更。
 比如，一个列表对象(iterable)是包含若干items的sequence，但是列表对象(iterable)并不应该标记当前状态是哪一个item——这个工作应该交给一个与iterable相关的迭代器对象（iterator）来处理（通过iter(iterable)得到）。
+
 
 # Python for...in...的本质
 
@@ -63,7 +64,7 @@ for i in a_list:
 其过程可以理解为迭代之初，Python自动调用了iter(a_list)生成一个iterator对象，不妨暂时称之为iterInstance（实际上这是个未命名的变量），过程可以描述为：iterInstance=iter(a_list),然后在循环过程中一路next(iterInstance)，直至抛出StopIteration。
 这两个内置函数iter()、 next()是和迭代器内部的__iter__()和__next__()两个方法是对应的。
 
-``注意，不要以为是list是迭代器，如果你直接对调用next(list)就会发现系统提示你list object is not an iterator``。对于一个list对象a_list，可以通过iter(a_list)生成一个迭代对象，也可以通过生成器表达式或者生产器函数得到一个迭代器。参见生成器
+这一点和PHP的`foreach($iter as $k=>$v)` 不同，PHP中，foreach操作的是iterator，而Python中for in 操作的则是iterable。
 
 # 自定义的Python iterator类
 
@@ -79,7 +80,7 @@ classFib:
     def __iter__(self):
         self.a = 0
         self.b = 1
-        returnself
+        return self
 
     def __next__(self):
         fib = self.a
