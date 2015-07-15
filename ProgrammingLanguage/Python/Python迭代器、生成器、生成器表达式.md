@@ -6,7 +6,7 @@
 
 ```C
 for(int i=0;i<10；i++){
-printf(“%d\n”,i);
+    printf(“%d\n”,i);
 }
 ```
 
@@ -23,6 +23,7 @@ printf(“%d\n”,i);
 
 * 能给定自己的初始状态
 * 能把迭代器对象从当前状态变化到后续状态
+
 Python3.x提供了2个内置函数来实现这一控制。
 
 * iter()：利用一个可迭代对象生成迭代器，即iter(iterable)==> iterator ，此内置函数会调用iterable.__iter__()方法。
