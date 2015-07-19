@@ -17,7 +17,7 @@ AppKernel会根据当前运行环境自动加载位于app/config/下的对应的
     public function registerContainerConfiguration(LoaderInterface $loader) {
         $loader->load($this->getRootDir().'/config/config_'.$this->getEnvironment().'.yml');
     }
-}
+
 ```
 
 ## 配置文件的格式
