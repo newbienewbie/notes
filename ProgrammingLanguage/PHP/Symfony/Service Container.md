@@ -93,6 +93,26 @@ $svr=$sc->get('srv_name');
 
 很显然，容器的实现原理不局限于PHP这门语言，Java、Python或任意的支持OOP的语言都可以采用类似的思路。把以上DI用PHP代码实现并不是唯一可选方案，我们还可以使用跨语言的配置文件（如XML、YAML）来定义服务。当然，这样一来，我们就需要依赖Symfony/Config组件了。
 
+表达上述DI信息的配置文件格式类似于；
+
+```YAML
+parameters: 
+    #...
+    mailer.transport: sendmail
+
+services: 
+    mailer: 
+        class: Mailer
+        arguments: ["%mailer.transport%"]
+    newsletter_mgr: 
+        class: NewsLetterMgr    #contruction injection
+        calls:                  #setter injection
+            -[setMailer,["%mailer%"]]
+        properties:             #perperty injection
+            #...
+
+```
+
 加载XML配置文件：
 ```PHP
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -132,25 +152,6 @@ $Loader->load('services.php');
 
 ```
 
-配置文件的格式类似于；
-
-```YAML
-parameters: 
-    #...
-    mailer.transport: sendmail
-
-services: 
-    mailer: 
-        class: Mailer
-        arguments: ["%mailer.transport%"]
-    newsletter_mgr: 
-        class: NewsLetterMgr    #contruction injection
-        calls:                  #setter injection
-            -[setMailer,["%mailer%"]]
-        properties:             #perperty injection
-            #...
-
-```
 
 
 
