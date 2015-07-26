@@ -193,3 +193,48 @@ $translator->addResource('array', array(
 
 var_dump($translator->trans('Symfony is great!'))
 ```
+
+## 在Symfony框架中使用翻译组件
+
+Symfony框架集成了翻译功能，
+
+翻译资源的位置在以下位置寻找（按照以下优先级）：
+
+* `app/Resources/translations`
+* `app/Resources/<bundle name>/translations` 
+* `Path/to/SomeBundle/Resources/translations/` 
+
+翻译资源文件的命名必须遵循这样的规则：
+
+`domain.locale.loader`
+
+domain是可选项；Symfony自带的loader包括xlf、php、yml等。例如：`FOSUserBundle.zh_CN.yml`、`validators.en.yml`等。
+
+设想用户的`locale`是`fr_FR`，当要翻译“Symfony is great” 时，会按照以下顺序寻找：
+
+1.  尝试寻找`fr_FR`对应的翻译资源,例如messages.fr_FR.xlf;
+2.  如果第一步没找到，则会寻找`fr`对应的翻译资源,例如messages.fr.xlf;
+3.  如果还没找到，则使用`fallbacks`对应的资源。
+
+## 在Symfony框架集成的Twig模板中使用翻译组件
+
+绝大部分时候，我们都是在在Symfony框架的Twig中使用翻译组件。
+
+Twig提供了tags和filters支持翻译功能：
+
+tags：
+```Twig
+{% trans with {'%name%': 'Fabien'} from "app" %}Hello %name%{% endtrans %}
+{% trans with {'%name%': 'Fabien'} from "app" into "fr" %}Hello %name%{% endtrans %}
+{% transchoice count with {'%name%': 'Fabien'} from "app" %}
+{0} %name%, there are no apples|{1} %name%, there is one apple|]1,Inf[ %name%, there are %count% apples
+{% endtranschoice %}
+```
+
+filters:
+```Twig
+{{ message|trans }}
+{{ message|transchoice(5) }}
+{{ message|trans({'%name%': 'Fabien'}, "app") }}
+{{ message|transchoice(5, {'%name%': 'Fabien'}, 'app') }}
+```
