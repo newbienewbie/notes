@@ -224,10 +224,14 @@ Twig提供了tags和filters支持翻译功能：
 
 tags：
 ```Twig
-{% trans with {'%name%': 'Fabien'} from "app" %}Hello %name%{% endtrans %}
-{% trans with {'%name%': 'Fabien'} from "app" into "fr" %}Hello %name%{% endtrans %}
+{% trans with {'%name%': 'Fabien'} f
+    rom "app" %}Hello %name%
+{% endtrans %}
+{% trans with {'%name%': 'Fabien'} from "app" into "fr" %}
+    Hello %name%
+{% endtrans %}
 {% transchoice count with {'%name%': 'Fabien'} from "app" %}
-{0} %name%, there are no apples|{1} %name%, there is one apple|]1,Inf[ %name%, there are %count% apples
+    {0} %name%, there are no apples|{1} %name%, there is one apple|]1,Inf[ %name%, there are %count% apples
 {% endtranschoice %}
 ```
 
