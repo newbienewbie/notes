@@ -151,7 +151,7 @@ use语句告诉Twig去把在某个文件中定义的block块导入到当前模�
 2. 不定义宏
 3. body为空
 
-和导入Macros一样，use也提供了别名来避免命名冲突：
+和针对Macros的import类似，use也支持了导入一部分代码段的功能，同时还提供别名机制来避免命名冲突：
 
 ```Twig
 {% extends "base.html" %}
