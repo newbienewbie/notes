@@ -137,6 +137,31 @@ Twig Macro可以在其他单独的文件中定义，然后导入到当前的模�
 
 ```
 
+### Twig Use Statement
+
+Twig的模板继承只支持单继承，Twig还提供了use以帮助我们实现更大程度的代码复用。
+
+use语句告诉Twig去把在某个文件中定义的block块导入到当前模板中。
+```Twig
+{% use "blocks.html" %}
+```
+
+这一功能类似于对于Macro的import语句，但是use只对block块有效，而且，想use的模板必须满足
+1. 不extends其他模板。
+2. 不定义宏
+3. body为空
+
+和导入Macros一样，use也提供了别名来避免命名冲突：
+
+```Twig
+{% extends "base.html" %}
+
+{% use "blocks.html" with sidebar as base_sidebar, title as base_title %}
+
+{% block sidebar %}{% endblock %}
+{% block title %}{% endblock %}
+{% block content %}{% endblock %}
+```
 
 
 ## Template的全局变量
