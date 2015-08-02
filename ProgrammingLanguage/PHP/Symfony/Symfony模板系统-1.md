@@ -113,6 +113,30 @@ PHP模板，可以使用
 ```
 进行转义。
 
+
+### Twig Macro
+
+[Twig Macro](http://twig.sensiolabs.org/doc/templates.html)是非常强大的HTML代码复用手段，它的功能非常类似于C语言的宏：
+
+```Twig
+{% macro input(name, value = "", type = "text", size = 20) %}
+    <input type="{{ type }}" name="{{ name }}" value="{{ value|e }}" size="{{ size }}" />
+{% endmacro %}
+```
+
+Twig Macro可以在其他单独的文件中定义，然后导入到当前的模板文件中：
+
+```Twig
+{#    #}
+{% import "forms.html" as forms %}
+
+{# 导入单独的一个Macro #}
+{% from 'forms.html' import input as input_field %}
+
+```
+
+
+
 ## Template的全局变量
 
 不管是Twig模板，还是纯PHP模板，Symfony都为之提供了一个变量`app`
