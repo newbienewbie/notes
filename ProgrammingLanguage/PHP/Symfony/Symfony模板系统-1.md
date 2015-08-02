@@ -127,11 +127,13 @@ PHP模板，可以使用
 Twig Macro可以在其他单独的文件中定义，然后导入到当前的模板文件中：
 
 ```Twig
-{#    #}
+{# 导入整个宏定义文件 #}
 {% import "forms.html" as forms %}
+{{ forms.input('username') }}
 
-{# 导入单独的一个Macro #}
+{# 从宏文件中导入某个单独的Macro #}
 {% from 'forms.html' import input as input_field %}
+{{ input_field('username') }}
 
 ```
 
