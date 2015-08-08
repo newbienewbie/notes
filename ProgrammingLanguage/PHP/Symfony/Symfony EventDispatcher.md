@@ -41,14 +41,14 @@ Symfony/EventDispather组件提供了这类对事件发布、调度、监听的�
 
 EventDispather对象的dispatch()方法会根据某一个事件对应的Listeners,按优先级逐一进行调用。EventDispather支持两套风格事件处理程序的绑定。最常用的是addListener(),这是一种快速编码的回调风格，类似于JavaScript中的回调函数。还有一种使用Subscriber对象的风格。
 
-## Listener
+## 使用具有回调风格的Listener
 
 添加监听器的方法原型为：
 ```PHP
 addListener($eventName,$listener,$priority=0)
 ```
 
-传递给addListener的第二个参数是callable对象,类似于JavaScript的回调函数:
+这一方法的关键特征是:传递给addListener的第二个参数是一个callable对象。这十分类似于JavaScript的回调函数:
 
 ```PHP
 
@@ -65,7 +65,7 @@ $dispather->addListener(
 );
 ```
 
-## Subscriber
+## 使用EventSubscriber对象
 
 EventDispather还支持另外一种风格的监听绑定：
 
@@ -131,7 +131,7 @@ addSubscriber()方法会自动检测接收到的$subscriber对象并解析出合
     }
 ```
 
-可以看到，addSubscriber()始终都是把形如`array($subscriber,$methodName)`这样的callable传递给addListener。显而易见，一个Subscrber应该有如下的形式：
+可以看到，addSubscriber()始终都是把形如`array($subscriber,$methodName)`这样的callable传递给addListener。显而易见，一个Subscrber应该有如下的类似形式：
 
 ```PHP
 class StoreSubscriber implements EventSubscriberInterface{
@@ -166,6 +166,41 @@ class StoreSubscriber implements EventSubscriberInterface{
 }
 ```
 
+这种十分类似于Java Swing中事件监听接口，比如MouseListener类：
+```Java
+button.addMouseListener(new MouseListener() {
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("mouseClicked");
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        System.out.println("鼠标被按住");
+    }
+
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        System.out.println("鼠标被释放");
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+        System.out.println("鼠标被进入");
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        System.out.println("鼠标被退出");
+    }
+});
+```
+
+Symfony中的EventSubscriber对象为一组事件监听器提供了良好的组织形式，使得代码更具有可读性。
 
 
 
