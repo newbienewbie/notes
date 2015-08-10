@@ -31,6 +31,26 @@ class FilterOrderEvent extends Event{
 
 这样，FilterOrderEvent事件除了包含Event基础类中那些对发生了什么的描述，还增加了对order这类信息的描述（提供了getOrder()接口让其他人获取Order对象）。
 
+再比如，Symfony/Form组件中的FormEvent类，除了基础的Event属性外，还添加了两个额外属性:
+
+```PHP
+class FormEvent extends Event
+{
+    private $form;
+    protected $data;
+    
+    public function __construct(FormInterface $form, $data)
+    {
+        $this->form = $form;
+        $this->data = $data;
+    }
+    
+    //....
+}
+```
+
+一个是实现了FormInterface的表单对象$form，代表与当前事件相关的是哪个表单;一个是混合类型的$data参数，用于对特定数据的动态修改，如modelData之类。
+
 很多时候，我们并不仅仅想知道发生了什么，我们还想根据发生了什么做出相应的动作。关于这一点，可以参见Wiki给出的Event定义：
 
 > In computing, an event is an action or occurrence detected by the program that may be handled by the program 
