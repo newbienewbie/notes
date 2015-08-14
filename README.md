@@ -18,6 +18,7 @@
 
 * [SQLInjection](https://github.com/newbienewbie/notes/tree/master/Pene/SqlInjection)
 * [Spy](https://github.com/newbienewbie/notes/tree/master/Pene/Spy)
+* [Misc](https://github.com/newbienewbie/notes/tree/master/Pene/Misc)
 
 
 
