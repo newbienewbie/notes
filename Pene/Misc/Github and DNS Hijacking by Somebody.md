@@ -21,19 +21,19 @@ dig github.com @8.8.8.8
 dig github.com @8.8.8.8 +tcp
 ```
 得到这样一张图：
-![github的DNS查询结果](https://github.com/newbienewbie/notes/raw/master/pene/misc/img/github_dig_github_1.png)
+![github的DNS查询结果](https://github.com/newbienewbie/notes/raw/master/Pene/Misc/img/github_dig_github_1.png)
 
 熟悉的配方，熟悉的味道。我闻到阵阵恶心的味道，于是我打算暂停手头的工作，去吃点西瓜压压惊。
 
 二十分钟后，我又进行了一次DNS查询(UDP)：
 
-![第二次通过UDP协议查询github的IP地址](https://github.com/newbienewbie/notes/raw/master/pene/misc/img/github_dig_github_2.png)
+![第二次通过UDP协议查询github的IP地址](https://github.com/newbienewbie/notes/raw/master/Pene/Misc/img/github_dig_github_2.png)
 
 至于这两个捕获到的IP地址：`203.208.39.104`、`66.249.89.104`,我whois了一下：
 
-![203.208.39.104](https://github.com/newbienewbie/notes/raw/master/pene/misc/img/github_whoisi_203.208.39.104.png)
+![203.208.39.104](https://github.com/newbienewbie/notes/raw/master/Pene/Misc/img/github_whoisi_203.208.39.104.png)
 
-![66.249.89.104.png](https://github.com/newbienewbie/notes/raw/master/pene/misc/img/github_whois_66.249.89.104.png)
+![66.249.89.104.png](https://github.com/newbienewbie/notes/raw/master/Pene/Misc/img/github_whois_66.249.89.104.png)
 
 我想上个github，结果某人告诉我要去google家的服务器找。
 
