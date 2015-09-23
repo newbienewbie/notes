@@ -8,6 +8,8 @@
 * [PHP]()
     * [PHPCMS](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/PHP/PHPCMS)
     * [Symfony](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/PHP/Symfony)
+    * [WordPress](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/PHP/WordPress)
+    * [Misc](https://github.com/newbienewbie/notes/tree/master/ProgrammingLanguage/PHP/Misc)
 * Java
 * JavaScript
 * HTML
