@@ -1,11 +1,14 @@
 # 保存插件的数据到数据库
 
-大多数WordPress插件都需要获取管理员或用户输入的一些信息，并保存在会话中，以便在过滤器函数(filter)、动作函数(action)和模板函数(template)中使用。若需要在下次会话中继续使用这些信息，就必须将它们保存到WordPress数据库中。以下是将插件数据保存到数据库的4种方法：
+大多数WordPress插件都需要获取管理员或用户输入的一些信息，并保存在会话中，以便在过滤器函数(filter)、动作函数(action)和模板函数(template)中使用。若需要在下次会话中继续使用这些信息，就必须将它们保存到WordPress数据库中。以下是将插件数据保存到数据库的几种方法：
 
 1. 使用WordPress的"选项"机制。
 2. 使用文章元数据（又名自定义域）。
 3. 使用自定义分类。
-4. 创建一个新的，自定义的数据库表。这种方式适合保存那些与个人文章、页面或附件无关的，会随着时间逐渐增长的，并且没有特定名称的数据。关于如何使用，你可以阅读Creating Tables with Plugins以获取更多信息
+4. 使用其他数据表
+5. 创建一个新的，自定义的数据库表。这种方式适合保存那些与个人文章、页面或附件无关的，会随着时间逐渐增长的，并且没有特定名称的数据。关于如何使用，你可以阅读Creating Tables with Plugins以获取更多信息
+
+
 
 ## WordPress选项机制
 
@@ -42,6 +45,7 @@ mysql> select * from wp_options limit 25;
 * `add_option($name,$value,$deprecated,$autoload)`
 * `get_option($name)`
 * `update_option($name,$value)`
+* `delete_option()`
 
 通常情况下，最好能够对插件选项的数量进行一下精简。例如，如果有10个不同名称的选项需要保存到数据库中，那么，就可以考虑将这10个数据作为一个数组，并保存到数据库的同一个选项中。 
 
@@ -75,12 +79,45 @@ mysql> select * from wp_postmeta limit 15 ;
 
 ```
 
-涉及到的一些基本函数为：
+涉及到的一些基本的CRUD函数为：
 
 * `add_post_meta()`
 * `get_post_meta()`
 * `update_post_meta()`
 * `delete_post_meta()`
+
+实际上，WordPress2.9之后，引入了`register_post_type`来创建新的Post Type。配合对元数据的操作函数，可以极大程度上模拟各种实体功能，从而避免创建新的的数据表。
+
+```PHP
+//...某插件提供的Post Type注册方法片段
+
+register_post_type(
+    self::POST_TYPE,
+    array(
+        'labels' => array(
+            'name' => __(sprintf('%ss', ucwords(str_replace("_", " ", self::POST_TYPE)))),
+            'singular_name' => __(ucwords(str_replace("_", " ", self::POST_TYPE)))
+        ),
+        'public' => true,
+        'has_archive' => true,
+        'description' => __("This is a sample post type meant only to illustrate a preferred structure of plugin development"),
+        'supports' => array(
+            'title', 'editor', 'excerpt', 
+        ),
+    )
+);
+```
+一旦使用了自定义的Post Type来作为Entity，就可以使用WordPress自带的CRUD函数来操作：
+
+* `wp_insert_post()` #Create a new post (C).
+* `get_post()`       #Retrieve a post (R).
+* `wp_update_post()` #Update an existing post (U).
+* `wp_delete_post()` #Delete a post (D).
+
+当然，搭配到WordPress的钩子上，就更强大了。例如：
+
+* `save_post`             # 当保存文章时被触发的钩子事件
+* `save_post_{post_type}` # WP3.7新增钩子,无须校验`is_post_type($post_type)`
 
 
 ## Custom Taxonomy
@@ -97,6 +134,16 @@ WordPress默认内置了4种Taxonomies:
 这种方式适合保存那些需要分门别类存放的数据，如用户信息、评论内容以及用户可编辑的数据等，特别适合于当你想要根据某个类型去查看相关的文章和数据的情况。
 
 
+## 使用WordPress内置的其他数据表
+
+WordPress为内置数据表提供了许多便利函数，比如Users数据表:
+
+```
+* `wp_create_user()`#Create a new user (C).
+* `get_userdata()`  #Retrieve a user’s data (R).
+* `wp_update_user()`#Update an existing user (U).
+* `wp_delete_user()`#Delete a user (D).
+```
 
 
 ## 建立额外的数据表
@@ -137,6 +184,8 @@ $wpdb->insert(
     )
 );
 ```
+
+
 
 
 
