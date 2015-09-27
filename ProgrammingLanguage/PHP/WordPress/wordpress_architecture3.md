@@ -117,7 +117,27 @@ WordPress常见的模板类型及代表性的模板包括：
 
 在WordPress中，任意一个最终没有找到对应的模板文件的请求都会被`index.php`模板处理。
 
-### Template Hierarchy的filter
+### Template Hierarchy与钩子
+
+#### 模板重定向
+
+在文件`wp-includes/template-loader.php`的开头，WordPress布置了一个重定向action钩子：
+
+```PHP
+// wp-includes/template-loader.php
+
+if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) 
+    do_action( 'template_redirect' );
+//...
+
+// 查找要加载哪个模板
+// ...
+
+```
+
+这个钩子给了我们彻底抛弃使用WordPress默认模板等级的权利，只需要添加钩子使用自己的模板选择逻辑，然后exit就行。
+
+#### 模板等级中的钩子
 
 WordPress模板系统能让你对默认的Template Hierarchy进行filter,这意味着我们能在等级中的某一个点进行插入和改变一些东西。
 
@@ -172,9 +192,11 @@ WordPress在按照默认的模板等级查找到相关模板后，又触发了�
 * `single_template`
 * `text_template`,`plain_template`,`text_plain_template`,
 * `attach_template`
-* `Comments_template`
+* `comments_template`
 
 当需要对默认的Template Hierarchy进行修改的时候，就可以使用这些过滤器。
+比如，想对默认的评论模板进行替换，就可以将自己的模板函数查找器添加filter钩子`comments_template`。
+又比如，相对默认的某种PostType类型的单页模板进行修改，就可以将自己的模板函数查找器添加倒filter钩子`single_template`。
 
 来自WordPress官方例子如下：
 
@@ -206,7 +228,53 @@ function author_role_template( $templates='' ) {
 add_filter( 'author_template', 'author_role_template' );
 ```
 
+#### 模板加载前的filter钩子
 
+最后，在模板找到之后和加载之前的时刻，WordPress还布置了一个名为`template_include`的钩子：
+
+```PHP
+// wp-includes/template-loader.php
+
+if ( $template = apply_filters( 'template_include', $template ) )
+    include( $template );
+return;
+```
+
+此filter钩子可以帮助我们加载最终合适的模板。对于Custom Post Type的各类模板加载非常有用。
+
+例如，著名插件Woocommerce中，为了保证插件对所有模板适用，把相关的自定义模板都放到了自己插件的子目录下，同时添加钩子函数引入自己的模板加载器：
+
+```PHP
+
+class WC_Template_Loader {
+
+    //...
+
+    public static function init() {
+        add_filter( 'template_include', array( __CLASS__, 'template_loader' ) );
+        add_filter( 'comments_template', array( __CLASS__, 'comments_template_loader' ) );
+    }
+
+
+	public static function template_loader( $template ) {
+        //...
+		return $template;
+	}
+
+
+
+	public static function comments_template_loader( $template ) {
+        //...
+		return $template;
+	}
+
+    //...
+
+}
+
+```
+
+这是一种十分健壮的做法。
 
 
 ## 总结
