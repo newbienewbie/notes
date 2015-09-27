@@ -94,7 +94,7 @@ WordPress常见的模板类型及代表性的模板包括：
     * Single Post                #single.php
         * Attachment Page        #attachment.php
         * Blog Post              #single-post.php
-        * Custom Post            #single-$posttyle.php
+        * Custom Post            #single-{$posttype}.php
     * Static Page                #page.php
 * Site Front Page                #front-page.php
 * Blog Posts Index Page          #home.php
@@ -102,13 +102,26 @@ WordPress常见的模板类型及代表性的模板包括：
 * Error 404 Page                 #404.php
 * Search Result Page             #search.php
 
+特别的，对于某种Post Type(包括post类型)，其归档页模板的寻找路线是：
+
+1. archive-{$posttype}.php
+2. archive.php
+3. index.php
+
+其单页面模板的寻找路线是：
+
+1. single-{$posttype}.php
+2. single.php
+3. singular.php
+4. index.php
+
 在WordPress中，任意一个最终没有找到对应的模板文件的请求都会被`index.php`模板处理。
 
 ### Template Hierarchy的filter
 
 WordPress模板系统能让你对默认的Template Hierarchy进行filter,这意味着我们能在等级中的某一个点进行插入和改变一些东西。
 
-filter位于函数`get_query_template()`中，filter名的形式为`{$type}_template`:
+相关的filter钩子布置于函数`get_query_template()`中，filter钩子名的形式为`{$type}_template`:
 
 ```PHP
 /**
@@ -139,6 +152,8 @@ function get_query_template( $type, $templates = array() ) {
 	return apply_filters( "{$type}_template", $template );
 }
 ```
+WordPress在按照默认的模板等级查找到相关模板后，又触发了与该模板类型相关的钩子事件，这就给了我们一个改变默认模板优先级的机会。
+
 完整的filter清单如下：
 
 * `index_template`
@@ -169,20 +184,20 @@ function get_query_template( $type, $templates = array() ) {
 2. `author-{id}.php`
 3. `author.php`
 
-为了在`author.php`之前增加一个模板`author-{role}.php`
+为了在`author.php`之前增加一个被优先使用的模板`author-{role}.php`
 
 ```PHP
 function author_role_template( $templates='' ) {
  
     $author = get_queried_object();
-    $role=$author-&amp;amp;gt;roles[0];
+    $role=$author->roles[0];
  
-    if(!is_array($templates) &amp;amp;amp;&amp;amp;amp; !empty($templates)) {
-        $templates=locate_template(array(&amp;amp;quot;author-$role.php&amp;amp;quot;,$templates),false);
+    if(!is_array($templates) && !empty($templates)) {
+        $templates=locate_template(array("author-$role.php",$templates),false);
     }elseif(empty($templates)) {
-        $templates=locate_template(&amp;amp;quot;author-$role.php&amp;amp;quot;,false);
+        $templates=locate_template("author-$role.php",false);
     }else {
-        $new_template=locate_template(array(&amp;amp;quot;author-$role.php&amp;amp;quot;));
+        $new_template=locate_template(array("author-$role.php"));
         if(!empty($new_template)) array_unshift($templates,$new_template);
     }
     return $templates;
@@ -190,11 +205,6 @@ function author_role_template( $templates='' ) {
  
 add_filter( 'author_template', 'author_role_template' );
 ```
-
-
-
-
-
 
 
 
@@ -207,6 +217,7 @@ WordPress的前台博客功能其实思路非常简单，即
 2. 执行查询并设置全局变量
 3. 加载相关模板
 
+加载相关模板特别需要理解的是$post-type的归档页和单页的模板加载优先级。
 
 
 

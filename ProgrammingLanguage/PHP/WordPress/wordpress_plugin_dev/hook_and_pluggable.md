@@ -11,8 +11,15 @@
 * `apply_filters`
 * `apply_filters_ref_array`
 
+类似这些钩子，可以接受不定数量的参数 ，如：
 
-将函数钩到事件:
+```PHP
+do_action('save_post',$post_id,$post);
+
+do_action( $hook_name, $arg_1, $arg_2, $arg_3,... );
+```
+
+因此，在将函数钩到事件时，需要用第四个参数来说明钩取的函数接受的参数数量:
 
 ```PHP
 add_action ( 'hook_name', 'your_function_name', [priority], [accepted_args_num=1] );
