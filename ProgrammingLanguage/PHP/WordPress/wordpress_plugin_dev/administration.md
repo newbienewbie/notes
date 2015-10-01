@@ -77,11 +77,11 @@ function my_plugin_menu() {
 
     //在Options下添加子菜单
     add_options_page( 
-        'My Plugin Options', 
-        'My Plugin', 
-        'manage_options', 
-        'my-unique-identifier', 
-        function(){    //当菜单被点击后,调用此函数，输出内容将作为管理界面的右部子界面
+        'My Plugin Options',     // page title
+        'My Plugin',             // menu title
+        'manage_options',        // capability
+        'my-unique-identifier',  // menu slug
+        function(){              // 当菜单被点击后,调用此函数，输出内容将作为管理界面的右部子界面
             if ( !current_user_can( 'manage_options' ) )  {
                 wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
             }
