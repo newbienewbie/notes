@@ -1,6 +1,9 @@
 # WordPress Model Layer
 
+WordPress虽说并不和现代的MVC模式一致,但是也有独立的数据库操作层。
+
 # 全局对象$wpdb
+
 有一个全局对象$wpdb 作为WPINC/wp-db.php中的wpdb类实例对象。该类是
 ` WordPress Database Access Abstraction`。
 
@@ -32,7 +35,7 @@ $wpdb->insert(
 
 1. 表名 
 2. 新记录的数组表示，由各字段的名/值对组成的数组
-3. where条件数组  
+3. where条件数组 
 4. 数组,每个元素表示新记录中的值的格式
 5. 数组，表示where条件数组的格式
 

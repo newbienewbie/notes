@@ -1,5 +1,7 @@
 # WordPress钩子和Pluggable
 
+钩子和Pluggable是WordPress插件机制的基础。
+
 ## Action和Filter
 
 与Symfony/EventDispather组件、GuzzleHttp 的事件分发机制类似，WordPress提供了一种过程式的钩子实现。当特定事件发生时，WordPress就会根据当前事件对所关联的函数进行调用。
