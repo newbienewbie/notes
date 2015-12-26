@@ -16,7 +16,7 @@
 
 然后在漫长的等待后提示timeout，于是初步认定DNS环节出了问题，分别调用：
 
-```bash
+```.bash
 dig github.com @8.8.8.8 
 dig github.com @8.8.8.8 +tcp
 ```
