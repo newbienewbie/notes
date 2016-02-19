@@ -73,7 +73,7 @@ for i in a_list:
 二是实现一个__iter__() 方法，会返回自身这个迭代器。
 以下代码引自《深入 Python 3》第七章：
 ```Python
-classFib:
+class Fib:
     def __init__(self, max):
         self.max = max
 
