@@ -187,7 +187,7 @@ after calling
 
 ```Python
 
-defParentFoo():
+def ParentFoo():
 ''''测试子函数对父函数的局部变量的影响父函数有两个对象， aInt：int类对象；aList：list类对象。'''
     aInt=1234567
     aList=["a","b","c","d"]
@@ -195,7 +195,7 @@ defParentFoo():
     print("\taInt is ",aInt,",id is ",id(aInt))
     print("\taList is ",aList,"，id is ",id(aList))
 
-    defSubFoo():
+    def SubFoo():
 '    ''子函数，用于测试子函数里局部变量修改对外围变量的影响 '''
         print("Calling SubFoo : ")#提示子函数已经开始调用
 
@@ -257,7 +257,7 @@ aList is ['a', 'b', 'c', 'd', 'e'] ，id is 3068358220
 例如：
 
 ```Python
-defline_conf():
+def line_conf():
     b = 15
     defline(x):
         return2*x+b
@@ -278,7 +278,7 @@ print(my_line.__closure__[0].cell_contents)
 
 一个实际例子：
 ```Python
-defline_conf(a, b):
+def line_conf(a, b):
     defline(x):
         return a*x + b	#原文误作return ax+b
     return line
